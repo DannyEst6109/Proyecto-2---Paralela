@@ -1,0 +1,8 @@
+Fecha (Guatemala): 2026-10-14T20:02:33-06:00
+Entorno: Ubuntu / WSL
+Directorio: /mnt/c/Users/carlos.estrada/Documents/U/Proyecto-2---Paralela
+
+$ programas/aes_archivo descifrar /tmp/proyecto02-evidencia-qmpwoupl/mensaje.aes /tmp/proyecto02-evidencia-qmpwoupl/clave_incorrecta.txt 123457
+Clave incorrecta o contenido alterado.
+
+Codigo de salida: 1

@@ -1,0 +1,8 @@
+Fecha (Guatemala): 2026-10-14T20:02:33-06:00
+Entorno: Ubuntu / WSL
+Directorio: /mnt/c/Users/carlos.estrada/Documents/U/Proyecto-2---Paralela
+
+$ cmp datos/mensaje.txt /tmp/proyecto02-evidencia-qmpwoupl/recuperado.txt
+
+Codigo de salida: 0
+Verificacion: original y recuperado identicos byte a byte.

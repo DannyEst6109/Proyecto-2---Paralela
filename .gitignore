@@ -1,10 +1,13 @@
 # Ejecutables generados por make
+/programas/aes_archivo
 /programas/busqueda_clave_aes_secuencial
 /programas/busqueda_clave_aes_mejorada
 /programas/busqueda_clave_aes_mpi
 /programas/test_aes
 
 # Archivos temporales
+/.playwright-cli/
+/tmp/
 __pycache__/
 *.pyc
 *.o

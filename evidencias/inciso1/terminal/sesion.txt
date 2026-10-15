@@ -1,0 +1,66 @@
+[H[2J[3JPROYECTO 02 - INCISO 1 | COMPILACION EN UBUNTU
+
+$ date --iso-8601=seconds 
+2026-10-14T20:07:38-06:00
+$ uname -sr 
+Linux 6.18.33.2-microsoft-standard-WSL2
+$ openssl version 
+OpenSSL 3.5.5 27 Jan 2026 (Library: OpenSSL 3.5.5 27 Jan 2026)
+$ make -B -C programas 
+make: Entering directory '/mnt/c/Users/carlos.estrada/Documents/U/Proyecto-2---Paralela/programas'
+gcc -std=c11 -O2 -Wall -Wextra -Wpedantic busqueda_clave_aes_secuencial.c -o busqueda_clave_aes_secuencial -lcrypto
+gcc -std=c11 -O2 -Wall -Wextra -Wpedantic busqueda_clave_aes_mejorada.c -o busqueda_clave_aes_mejorada -lcrypto
+mpicc -std=c11 -O2 -Wall -Wextra -Wpedantic busqueda_clave_aes_mpi.c -o busqueda_clave_aes_mpi -lcrypto
+gcc -std=c11 -O2 -Wall -Wextra -Wpedantic aes_archivo.c -o aes_archivo -lcrypto
+make: Leaving directory '/mnt/c/Users/carlos.estrada/Documents/U/Proyecto-2---Paralela/programas'
+
+[Etapa 01 terminada; captura de la terminal]
+[H[2J[3JPROYECTO 02 - INCISO 1 | CIFRADO DEL ARCHIVO TXT
+
+$ cat datos/mensaje.txt 
+Esta es una prueba de proyecto 2
+$ ./programas/aes_archivo cifrar datos/mensaje.txt evidencias/inciso1/terminal/mensaje.aes 123456 
+Operacion: cifrar
+Entrada: datos/mensaje.txt
+Salida: evidencias/inciso1/terminal/mensaje.aes
+Longitud: 33 bytes
+Clave AES-128 (hex): 0000000000000000000000000001e240
+Texto cifrado (hex): 1e9f7004a3e8ac81f293cb984182ea8f49b509360c71a4c2b8a38d5538d2eb2ef3
+Texto original:
+Esta es una prueba de proyecto 2
+
+
+[Etapa 02 terminada; captura de la terminal]
+[H[2J[3JPROYECTO 02 - INCISO 1 | DESCIFRADO CON LA MISMA CLAVE
+
+$ ./programas/aes_archivo descifrar evidencias/inciso1/terminal/mensaje.aes evidencias/inciso1/terminal/recuperado.txt 123456 
+Operacion: descifrar
+Entrada: evidencias/inciso1/terminal/mensaje.aes
+Salida: evidencias/inciso1/terminal/recuperado.txt
+Longitud: 33 bytes
+Clave AES-128 (hex): 0000000000000000000000000001e240
+Texto cifrado (hex): 1e9f7004a3e8ac81f293cb984182ea8f49b509360c71a4c2b8a38d5538d2eb2ef3
+Texto recuperado:
+Esta es una prueba de proyecto 2
+
+Autenticacion GCM: correcta
+
+[Etapa 03 terminada; captura de la terminal]
+[H[2J[3JPROYECTO 02 - INCISO 1 | VERIFICACION Y PRUEBAS
+
+$ cmp datos/mensaje.txt evidencias/inciso1/terminal/recuperado.txt 
+cmp: codigo 0; archivos identicos byte a byte.
+
+$ sha256sum datos/mensaje.txt evidencias/inciso1/terminal/recuperado.txt 
+ee3baca1bef803f13ce5c3a754d3209ac15d2f96d679e00f1d882fed7732d257  datos/mensaje.txt
+ee3baca1bef803f13ce5c3a754d3209ac15d2f96d679e00f1d882fed7732d257  evidencias/inciso1/terminal/recuperado.txt
+$ python3 programas/probar_inciso1.py 
+PASS: 20 casos del inciso 1; archivos identicos byte a byte,
+limites, errores, autenticacion y compatibilidad con el Laboratorio 03.
+$ ./programas/aes_archivo descifrar evidencias/inciso1/terminal/mensaje.aes evidencias/inciso1/terminal/no_crear.txt 123457 
+Clave incorrecta o contenido alterado.
+Codigo de salida de la clave incorrecta: 1 (esperado: 1).
+Verificado: no se creo un archivo con texto invalido.
+
+[Etapa 04 terminada; captura de la terminal]
+Capturas y pruebas terminadas.

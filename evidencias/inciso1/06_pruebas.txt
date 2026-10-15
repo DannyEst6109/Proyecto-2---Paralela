@@ -1,0 +1,9 @@
+Fecha (Guatemala): 2026-10-14T20:02:33-06:00
+Entorno: Ubuntu / WSL
+Directorio: /mnt/c/Users/carlos.estrada/Documents/U/Proyecto-2---Paralela
+
+$ python3 programas/probar_inciso1.py
+PASS: 20 casos del inciso 1; archivos identicos byte a byte,
+limites, errores, autenticacion y compatibilidad con el Laboratorio 03.
+
+Codigo de salida: 0

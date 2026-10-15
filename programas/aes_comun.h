@@ -93,7 +93,7 @@ static inline int load_dataset(const char *path, Dataset *d) {
         size_t l = strlen(length);
         ok = l > 0 && length[l-1] == '\n';
         if (ok) length[l-1] = 0;
-        ok = ok && parse_number(length, &n) && n > 0 && n <= MAX_MESSAGE;
+        ok = ok && parse_number(length, &n) && n <= MAX_MESSAGE;
     }
     if (ok) {
         d->length = (int)n;

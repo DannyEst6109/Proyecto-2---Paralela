@@ -1,0 +1,17 @@
+Fecha (Guatemala): 2026-10-14T20:02:33-06:00
+Entorno: Ubuntu / WSL
+Directorio: /mnt/c/Users/carlos.estrada/Documents/U/Proyecto-2---Paralela
+
+$ programas/aes_archivo descifrar /tmp/proyecto02-evidencia-qmpwoupl/mensaje.aes /tmp/proyecto02-evidencia-qmpwoupl/recuperado.txt 123456
+Operacion: descifrar
+Entrada: /tmp/proyecto02-evidencia-qmpwoupl/mensaje.aes
+Salida: /tmp/proyecto02-evidencia-qmpwoupl/recuperado.txt
+Longitud: 33 bytes
+Clave AES-128 (hex): 0000000000000000000000000001e240
+Texto cifrado (hex): 69beae005c4e28b385e1fcc5d21721f880d19eceb72badbe739e15be8af525ffdc
+Texto recuperado:
+Esta es una prueba de proyecto 2
+
+Autenticacion GCM: correcta
+
+Codigo de salida: 0
