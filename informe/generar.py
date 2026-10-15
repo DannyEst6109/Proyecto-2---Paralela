@@ -15,8 +15,8 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT = ROOT / "output" / "pdf" / "Informe_Inciso_1.pdf"
-EVID = ROOT / "evidencias" / "inciso1" / "terminal"
+OUT = ROOT / "informe" / "Informe_Inciso_1.pdf"
+EVID = ROOT / "evidencias" / "inciso1"
 FONT_DIR = Path("C:/Windows/Fonts")
 if not FONT_DIR.exists():
     FONT_DIR = Path("/mnt/c/Windows/Fonts")
@@ -93,7 +93,7 @@ def evidence_page(number, title, filename, caption, note):
 
 def main():
     global c
-    original = (ROOT / "datos" / "mensaje.txt").read_bytes()
+    original = (ROOT / "proyecto02" / "datos" / "mensaje.txt").read_bytes()
     recovered = (EVID / "recuperado.txt").read_bytes()
     assert original == recovered
     assert not (EVID / "no_crear.txt").exists()
@@ -104,8 +104,7 @@ def main():
     c.setAuthor("Daniel Estrada; Andre Pivaral; Sebastian Estrada")
     c.setSubject("Informe técnico y evidencias de ejecución en Ubuntu / WSL")
 
-    # Caratula vertical basada en la referencia del usuario. El cuerpo conserva
-    # orientacion horizontal para mantener legibles las capturas de terminal.
+    # Caratula vertical y cuerpo horizontal para las capturas de terminal.
     c.setPageSize((612, 792))
     c.setFillColor(colors.black)
     def centered(text, y, size=14, bold=False):
@@ -114,7 +113,7 @@ def main():
     centered("Universidad del Valle de Guatemala", 706, 16, True)
     centered("Facultad de Ingeniería", 687)
     centered("Computación Paralela y Distribuida - Semestre 2, 2026", 669)
-    c.drawImage(str(ROOT / "docs/assets/escudo_uvg.png"), 176, 345,
+    c.drawImage(str(ROOT / "informe/recursos/escudo_uvg.png"), 176, 345,
                 width=260, height=260, mask="auto")
     centered("Proyecto 02 - Entrega del inciso 1", 291, 16, True)
     centered("Cifrado y descifrado de archivos de texto", 268)
@@ -166,7 +165,8 @@ def main():
         "<b>Figura 1.</b> Captura directa de Windows Terminal ejecutando Ubuntu mediante WSL. "
         "Se muestran la fecha, el núcleo Linux, OpenSSL y los comandos de GCC y mpicc generados por Make.",
         "<b>Resultado:</b> compilación de los cuatro ejecutables sin diagnósticos de error ni advertencias en esta ejecución. "
-        "El ejecutable añadido para este inciso es <font name='Courier'>programas/aes_archivo</font>.")
+        "Las capturas preceden a la reorganización del repositorio. El ejecutable del inciso 1 ahora está en "
+        "<font name='Courier'>proyecto02/build/aes_archivo</font>.")
     evidence_page(4, "Lectura del .txt y cifrado", "02_cifrado.png",
         "<b>Figura 2.</b> Lectura de datos/mensaje.txt y cifrado AES-128-GCM con el parámetro 123456. "
         "La salida muestra el texto original, la clave convertida a 16 bytes y el contenido cifrado en hexadecimal.",
@@ -230,11 +230,11 @@ def main():
     for ref in references:
         y = p(ref, y, style=SMALL)
     y = p("<b>Material suplementario y reproducción.</b> El paquete de entrega incluye código fuente, Makefile, "
-          "datos/mensaje.txt, pruebas, instrucciones de ejecución y capturas PNG con su registro de sesión. "
-          "Desde la raíz: <font name='Courier'>make -C programas</font> y "
-          "<font name='Courier'>python3 programas/probar_inciso1.py</font>. "
+          "proyecto02/datos/mensaje.txt, pruebas, instrucciones y capturas PNG con su registro de sesión. "
+          "Desde la raíz: <font name='Courier'>make</font> y "
+          "<font name='Courier'>make test</font>. "
           "Los comandos de cifrado y descifrado se describen en README.md. Los archivos del ejemplo terminal "
-          "y sus capturas se encuentran en evidencias/inciso1/terminal/.", y, style=SMALL)
+          "y sus capturas se encuentran en evidencias/inciso1/.", y, style=SMALL)
     assert y >= 45, y
     c.showPage()
     c.save()

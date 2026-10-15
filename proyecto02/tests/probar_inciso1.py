@@ -4,11 +4,13 @@ from pathlib import Path
 import subprocess
 import tempfile
 
-HERE = Path(__file__).resolve().parent
+PROJECT = Path(__file__).resolve().parents[1]
+LAB = PROJECT.parent / "laboratorio03" / "programas"
 
 
 def run(*args, ok=True):
-    result = subprocess.run([str(HERE / args[0]), *map(str, args[1:])],
+    executable = PROJECT / "build" / args[0] if args[0] == "aes_archivo" else LAB / args[0]
+    result = subprocess.run([str(executable), *map(str, args[1:])],
                             capture_output=True)
     assert (result.returncode == 0) == ok, (args, result.stdout, result.stderr)
     return result

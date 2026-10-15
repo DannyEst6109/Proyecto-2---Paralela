@@ -1,9 +1,14 @@
-# Ejecutables generados por make
-/programas/aes_archivo
-/programas/busqueda_clave_aes_secuencial
-/programas/busqueda_clave_aes_mejorada
-/programas/busqueda_clave_aes_mpi
-/programas/test_aes
+# Compilación y resultados locales
+/proyecto02/build/
+/proyecto02/resultados/
+/laboratorio03/programas/busqueda_clave_aes_secuencial
+/laboratorio03/programas/busqueda_clave_aes_mejorada
+/laboratorio03/programas/busqueda_clave_aes_mpi
+/laboratorio03/programas/test_aes
+/laboratorio03/resultados/
+/laboratorio03/evidencias/
+/evidencias/pruebas/
+/entregas/*.zip
 
 # Archivos temporales
 /.playwright-cli/
@@ -11,4 +16,3 @@
 __pycache__/
 *.pyc
 *.o
-*.zip
