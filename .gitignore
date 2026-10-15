@@ -1,0 +1,11 @@
+# Ejecutables generados por make
+/programas/busqueda_clave_aes_secuencial
+/programas/busqueda_clave_aes_mejorada
+/programas/busqueda_clave_aes_mpi
+/programas/test_aes
+
+# Archivos temporales
+__pycache__/
+*.pyc
+*.o
+*.zip
