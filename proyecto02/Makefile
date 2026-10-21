@@ -1,18 +1,35 @@
 CC = gcc
+MPICC = mpicc
 CFLAGS = -std=c11 -O2 -Wall -Wextra -Wpedantic
 CPPFLAGS = -Iinclude
 LDLIBS = -lcrypto
-TARGET = build/aes_archivo
+
+# En macOS (Homebrew) OpenSSL no esta en la ruta por defecto.
+OPENSSL_PREFIX := $(shell brew --prefix openssl@3 2>/dev/null)
+ifneq ($(OPENSSL_PREFIX),)
+CPPFLAGS += -I$(OPENSSL_PREFIX)/include
+LDFLAGS += -L$(OPENSSL_PREFIX)/lib
+endif
+
+SEQ = build/aes_archivo build/busqueda_secuencial
+MPI = build/busqueda_base build/busqueda_alternativa
+HEADERS = include/aes_comun.h include/busqueda.h include/busqueda_mpi.h
 
 .PHONY: all clean
-all: $(TARGET)
+all: $(SEQ) $(MPI)
 
-$(TARGET): src/aes_archivo.c include/aes_comun.h | build
-	$(CC) $(CPPFLAGS) $(CFLAGS) $< -o $@ $(LDLIBS)
+build/aes_archivo: src/aes_archivo.c include/aes_comun.h | build
+	$(CC) $(CPPFLAGS) $(CFLAGS) $< -o $@ $(LDFLAGS) $(LDLIBS)
+
+build/busqueda_secuencial: src/busqueda_secuencial.c $(HEADERS) | build
+	$(CC) $(CPPFLAGS) $(CFLAGS) $< -o $@ $(LDFLAGS) $(LDLIBS)
+
+build/busqueda_base build/busqueda_alternativa: build/%: src/%.c $(HEADERS) | build
+	$(MPICC) $(CPPFLAGS) $(CFLAGS) $< -o $@ $(LDFLAGS) $(LDLIBS)
 
 build:
 	mkdir -p build
 
 clean:
-	rm -f $(TARGET)
+	rm -f $(SEQ) $(MPI)
 	-rmdir build

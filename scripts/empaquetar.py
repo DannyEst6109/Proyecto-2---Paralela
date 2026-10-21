@@ -1,20 +1,21 @@
-"""Empaqueta fuentes, ejecutables Linux, informe y evidencias del inciso 1."""
+"""Empaqueta fuentes, ejecutables Linux, informe y evidencias del proyecto."""
 from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile
 
 ROOT = Path(__file__).resolve().parent.parent
-OUTPUT = ROOT / "entregas" / "Entrega_Inciso_1.zip"
+OUTPUT = ROOT / "entregas" / "Entrega_Proyecto_02.zip"
 
 
 def main():
     files = [ROOT / name for name in ("README.md", ".gitignore", ".gitattributes", "Makefile")]
-    for folder in ("laboratorio03", "proyecto02", "informe", "evidencias/inciso1", "scripts"):
+    for folder in ("laboratorio03", "proyecto02", "informe", "evidencias/inciso1", "evidencias/inciso2", "scripts"):
         files += [path for path in (ROOT / folder).rglob("*")
                   if path.is_file()
                   and not {"__pycache__", "build", "resultados", "evidencias"}.intersection(path.relative_to(ROOT / folder).parts[:-1])
-                  and (path.suffix in {".c", ".h", ".py", ".md", ".txt", ".png", ".aes", ".pdf"}
+                  and (path.suffix in {".c", ".h", ".py", ".md", ".txt", ".png", ".aes", ".pdf", ".json"}
                        or path.name == "Makefile")]
-    binaries = [ROOT / "proyecto02/build/aes_archivo"]
+    binaries = [ROOT / "proyecto02/build" / name for name in
+                ("aes_archivo", "busqueda_secuencial", "busqueda_base", "busqueda_alternativa")]
     binaries += [ROOT / "laboratorio03/programas" / name for name in
                  ("busqueda_clave_aes_secuencial", "busqueda_clave_aes_mejorada", "busqueda_clave_aes_mpi")]
     if not all(path.is_file() for path in binaries):
