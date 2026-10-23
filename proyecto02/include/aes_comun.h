@@ -1,4 +1,5 @@
-/* Laboratorio 03 - Carlos Daniel Estrada Vega, 20853. Utilidades AES-128-GCM.
+/* Laboratorio 03 - Carlos Daniel Estrada Vega, 20853. Utilidades AES-128 (ECB).
+ * Se usa AES-128 en modo ECB con relleno PKCS#7 (sin nonce ni etiqueta GCM).
  * Las claves numeradas son SOLO un espacio reducido para el experimento.
  */
 #ifndef AES_COMUN_H
@@ -15,9 +16,11 @@
 #define NO_KEY UINT64_MAX
 #define MAX_RANGE (UINT64_C(1) << 32)
 typedef struct {
-    unsigned char nonce[12], tag[16], cipher[MAX_MESSAGE];
-    int length;
+    unsigned char cipher[MAX_MESSAGE + 16];  /* texto cifrado (multiplo de 16 por el relleno) */
+    int length;                              /* longitud del texto plano original */
 } Dataset;
+/* Longitud del texto cifrado: PKCS#7 siempre agrega de 1 a 16 bytes de relleno. */
+static inline int cipher_length(int plain_len) { return (plain_len / 16 + 1) * 16; }
 static inline void make_key(uint64_t candidate, unsigned char key[16]) {
     memset(key, 0, 16);
     for (int i = 0; i < 8; ++i)
@@ -38,28 +41,29 @@ static inline int encrypt_message(EVP_CIPHER_CTX *ctx, uint64_t candidate,
     unsigned char key[16]; int out = 0, tail = 0;
     make_key(candidate, key);
     d->length = length;
-    return EVP_EncryptInit_ex(ctx, EVP_aes_128_gcm(), NULL, key, d->nonce) == 1
+    return EVP_EncryptInit_ex(ctx, EVP_aes_128_ecb(), NULL, key, NULL) == 1
         && EVP_EncryptUpdate(ctx, d->cipher, &out, message, length) == 1
         && EVP_EncryptFinal_ex(ctx, d->cipher + out, &tail) == 1
-        && out + tail == length
-        && EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_GET_TAG, 16, d->tag) == 1;
+        && out + tail == cipher_length(length);
 }
-/* Retorna 1 si autentica, 0 para candidata incorrecta y -1 ante error de API.
- * Nunca se utiliza el texto provisional si falla la autenticacion.
+/* Descifra con relleno PKCS#7. Retorna 1 y la longitud del texto plano si el
+ * relleno es valido, 0 si la clave es incorrecta (relleno invalido) y -1 ante
+ * un error de la biblioteca. Se usa para recuperar el archivo original.
  */
-static inline int try_key(EVP_CIPHER_CTX *ctx, uint64_t candidate,
-        const Dataset *d, unsigned char plain[MAX_MESSAGE + 16]) {
+static inline int decrypt_message(EVP_CIPHER_CTX *ctx, uint64_t candidate,
+        const Dataset *d, unsigned char plain[MAX_MESSAGE + 16], int *plain_len) {
     unsigned char key[16]; int out = 0, tail = 0;
+    int clen = cipher_length(d->length);
     make_key(candidate, key);
-    if (EVP_DecryptInit_ex(ctx, EVP_aes_128_gcm(), NULL, key, d->nonce) != 1
-        || EVP_DecryptUpdate(ctx, plain, &out, d->cipher, d->length) != 1
-        || EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_TAG, 16, (void *)d->tag) != 1)
+    if (EVP_DecryptInit_ex(ctx, EVP_aes_128_ecb(), NULL, key, NULL) != 1
+        || EVP_DecryptUpdate(ctx, plain, &out, d->cipher, clen) != 1)
         return -1;
     if (EVP_DecryptFinal_ex(ctx, plain + out, &tail) != 1) {
-        OPENSSL_cleanse(plain, (size_t)d->length);
+        OPENSSL_cleanse(plain, (size_t)clen);
         return 0;
     }
-    return out + tail == d->length ? 1 : -1;
+    *plain_len = out + tail;
+    return 1;
 }
 static inline void print_hex(FILE *f, const unsigned char *data, int length) {
     for (int i = 0; i < length; ++i) fprintf(f, "%02x", data[i]);
@@ -78,16 +82,15 @@ static inline int read_hex(FILE *f, unsigned char *data, int length) {
 }
 static inline int save_dataset(const char *path, const Dataset *d) {
     FILE *f = fopen(path, "wb"); if (!f) return 0;
-    fprintf(f, "AESLAB1\n%d\n", d->length);
-    print_hex(f, d->nonce, 12); print_hex(f, d->tag, 16);
-    print_hex(f, d->cipher, d->length);
+    fprintf(f, "AESECB1\n%d\n", d->length);
+    print_hex(f, d->cipher, cipher_length(d->length));
     int ok = !ferror(f); if (fclose(f) != 0) ok = 0;
     return ok;
 }
 static inline int load_dataset(const char *path, Dataset *d) {
     FILE *f = fopen(path, "rb"); if (!f) return 0;
     char header[32], length[32]; uint64_t n = 0;
-    int ok = fgets(header, sizeof header, f) && !strcmp(header, "AESLAB1\n")
+    int ok = fgets(header, sizeof header, f) && !strcmp(header, "AESECB1\n")
         && fgets(length, sizeof length, f);
     if (ok) {
         size_t l = strlen(length);
@@ -97,23 +100,8 @@ static inline int load_dataset(const char *path, Dataset *d) {
     }
     if (ok) {
         d->length = (int)n;
-        ok = read_hex(f, d->nonce, 12) && read_hex(f, d->tag, 16)
-            && read_hex(f, d->cipher, d->length) && fgetc(f) == EOF && !ferror(f);
+        ok = read_hex(f, d->cipher, cipher_length(d->length)) && fgetc(f) == EOF && !ferror(f);
     }
     fclose(f); return ok;
-}
-static inline void print_result(const char *mode, int processes, uint64_t found,
-        uint64_t attempts, double elapsed, const Dataset *d, const unsigned char *plain) {
-    printf("Ejecucion: %s | Procesos: %d\n", mode, processes);
-    printf("Candidatas probadas: %" PRIu64 "\n", attempts);
-    if (found == NO_KEY) puts("No se encontro la clave en el rango.");
-    else {
-        unsigned char key[16]; make_key(found, key);
-        printf("Clave encontrada: %" PRIu64 "\nClave AES (hex): ", found);
-        print_hex(stdout, key, 16);
-        printf("Mensaje: "); fwrite(plain, 1, (size_t)d->length, stdout); putchar('\n');
-        puts("Autenticacion GCM: correcta");
-    }
-    printf("Tiempo de busqueda: %.9f segundos\n", elapsed);
 }
 #endif

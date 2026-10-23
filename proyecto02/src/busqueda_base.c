@@ -1,11 +1,13 @@
 /* Proyecto 02, incisos 2 y 3. Estrategia base: reparto estatico por lotes.
- * En la ronda r el proceso p prueba [(r*n+p)*B, (r*n+p+1)*B), con n procesos y lote B.
+ * Se recorren las claves [offset, offset+limite). En la ronda r el proceso p
+ * prueba [offset+(r*n+p)*B, offset+(r*n+p+1)*B), con n procesos y lote B.
  * Al terminar cada ronda todos los procesos comparten el resultado con MPI_Allreduce.
  */
 #include "busqueda_mpi.h"
 
-#define USO "Uso: mpirun -np N busqueda_base [-f frase] [-l limite] [-b lote] [-t segundos] archivo.aes\n" \
-    "  Prueba las claves 0..limite-1 (por defecto 4294967296) en lotes de 65536 claves."
+#define USO "Uso: mpirun -np N busqueda_base [-f frase] [-o offset] [-l limite] [-b lote] [-t segundos] archivo.aes\n" \
+    "  Prueba las claves offset..offset+limite-1 (offset 0 y limite 4294967296 por defecto) en lotes de 65536 claves.\n" \
+    "  Use -o para medir claves altas, p. ej. -o 18014398509481984 (2^56/4)."
 
 int main(int argc, char **argv) {
     MPI_Init(&argc, &argv);
@@ -20,13 +22,16 @@ int main(int argc, char **argv) {
     int plen = (int)strlen(p.phrase);
     uint64_t found = NO_KEY, attempts = 0, total = 0;
     uint64_t stride = (uint64_t)size * p.batch;
+    /* Fin de la ventana; se evita el desbordamiento al sumar offset + limite. */
+    uint64_t hi = p.offset + p.limit; if (hi < p.offset) hi = UINT64_MAX;
     int timed_out = 0;
     MPI_Barrier(MPI_COMM_WORLD);
     double start = MPI_Wtime();
-    for (uint64_t base = 0; base < p.limit && !timed_out; base += stride) {
+    for (uint64_t base = p.offset; base < hi && !timed_out; base += stride) {
         uint64_t local = NO_KEY;
         uint64_t first = base + (uint64_t)rank * p.batch;
-        uint64_t end = first + p.batch; if (end > p.limit) end = p.limit;
+        uint64_t end = first + p.batch; if (end > hi || end < first) end = hi;
+        if (first >= hi) first = hi;
         for (uint64_t k = first; k < end; ++k) {
             int result = try_phrase(ctx, k, &d, plain, p.phrase, plen); ++attempts;
             if (result < 0) mpi_fail("Error de API AES.");
@@ -37,6 +42,7 @@ int main(int argc, char **argv) {
         if (found != NO_KEY) break;
         int expired = p.max_seconds && MPI_Wtime() - start >= (double)p.max_seconds;
         MPI_Allreduce(&expired, &timed_out, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
+        if (base > UINT64_MAX - stride) break;   /* evita el desbordamiento del avance */
     }
     double local_time = MPI_Wtime() - start, elapsed = 0;
     MPI_Reduce(&local_time, &elapsed, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);

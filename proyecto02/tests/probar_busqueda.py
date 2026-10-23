@@ -45,15 +45,21 @@ def main():
             cipher = encrypt(root, f"k{key}", key)
             for program in programs:
                 out = run(program + [cipher]).stdout
-                assert found_key(out) == key and "Autenticacion GCM: correcta" in out, (program, key, out)
+                assert found_key(out) == key and "es una prueba de" in out, (program, key, out)
                 count += 1
-        # Familias de la estrategia alternativa y barrido con offset propio.
+        # Familias de la estrategia alternativa. Las claves estructuradas se hallan
+        # por su familia sin offset: la clave del enunciado 2^56/4 = 2^54 es potencia
+        # de 2 y 2^56/4+1 es potencia de 2 mas uno, asi que caen en "patrones humanos".
+        # El barrido exhaustivo (clave sin estructura) solo se mide acotandolo con -o.
         if MPIRUN:
             alt = MPIRUN + [BUILD / "busqueda_alternativa"]
-            for key, family in ((20240131, "patrones humanos"), (int.from_bytes(b"clave", "big"), "texto ASCII"),
-                    (KEY_BIG, "barrido alto"), (KEY_BIG + 1, "barrido alto"), (5_000_123_456, "barrido alto")):
+            for key, family, off in ((20240131, "patrones humanos", None),
+                    (int.from_bytes(b"clave", "big"), "texto ASCII", None),
+                    (KEY_BIG, "patrones humanos", None),
+                    (KEY_BIG + 1, "patrones humanos", None),
+                    (5_000_123_456, "barrido exhaustivo", 5_000_000_000)):
                 cipher = encrypt(root, f"a{key}", key)
-                extra = ["-o", 5_000_000_000] if key == 5_000_123_456 else []
+                extra = ["-o", off] if off is not None else []
                 out = run(alt + extra + [cipher]).stdout
                 assert found_key(out) == key and f"Familia de la clave: {family}" in out, (key, out)
                 count += 1
@@ -85,7 +91,7 @@ def main():
             count += 2
         # Entradas invalidas: no deben bloquearse ni fallar con senales.
         bad = root / "malo.aes"
-        bad.write_text("AESLAB1\n5\nzz\n")
+        bad.write_text("AESECB1\n5\nzz\n")
         cipher = encrypt(root, "ok", 1)
         for program in programs:
             for args in ([root / "no_existe.aes"], [bad], ["-l", 0, cipher], ["-l", "abc", cipher],

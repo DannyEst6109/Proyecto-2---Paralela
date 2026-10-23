@@ -2,8 +2,10 @@
 """Ejecuta las pruebas del enunciado (incisos 2 y 3) y guarda la bitacora en evidencias/.
 
 Uso: python3 proyecto02/tests/ejecutar_pruebas.py [segundos_limite_claves_grandes] [repeticiones]
-Con la busqueda secuencial y la base no es practico recorrer hasta 2^54 claves, por lo
-que esas ejecuciones se cortan con -t y el tiempo total se estima con el rendimiento medido.
+Para la base y la secuencial no es practico recorrer hasta 2^54 claves, por lo que esas
+ejecuciones se cortan con -t y el tiempo total se estima con el rendimiento medido. La
+alternativa, en cambio, mide esas claves de verdad: 2^56/4 (= 2^54) y 2^56/4+1 son una
+potencia de 2 y una potencia de 2 mas uno, y caen en la familia "patrones humanos".
 """
 from datetime import datetime
 from pathlib import Path
@@ -57,6 +59,10 @@ def main():
     for tag, key in KEYS.items():
         for name, command in PROGRAMS.items():
             big = tag != "a"
+            # Para la base y la secuencial, recorrer hasta 2^54 es inviable: se cortan
+            # con -t y el tiempo se estima con el rendimiento. La alternativa SI mide
+            # estas claves: 2^56/4 = 2^54 y 2^56/4+1 caen en la familia "patrones
+            # humanos" (potencias de 2 y potencias +-1) y se hallan de inmediato.
             capped = big and name != "alternativa"
             extra = ["-t", str(limit)] if capped else []
             times, rates = [], []
@@ -67,8 +73,8 @@ def main():
                 if not capped and f"Clave encontrada: {key}" not in out:
                     raise SystemExit(f"{name} no hallo la clave {key}")
             rate = median(rates)
-            # Estimado: la clave se halla tras ~key claves a la tasa medida (la base y la
-            # secuencial recorren las claves en orden creciente).
+            # Estimado (solo base y secuencial, que recorren en orden creciente): la clave
+            # se halla tras ~key intentos a la tasa medida.
             results[(tag, name)] = (median(times), rate, (key + 1) / rate if capped else None)
     stamp = f"{datetime.now(ZoneInfo('America/Guatemala')):%Y%m%d-%H%M%S}"
     (OUT / "bitacora.txt").write_text("\n".join(log), encoding="utf-8")

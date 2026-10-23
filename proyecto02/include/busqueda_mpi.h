@@ -19,9 +19,7 @@ static inline int mpi_setup(int argc, char **argv, const char *usage, Params *p,
     if (!valid) return 0;
     MPI_Bcast(p, (int)sizeof *p, MPI_BYTE, 0, MPI_COMM_WORLD);
     MPI_Bcast(&d->length, 1, MPI_INT, 0, MPI_COMM_WORLD);
-    MPI_Bcast(d->nonce, 12, MPI_UNSIGNED_CHAR, 0, MPI_COMM_WORLD);
-    MPI_Bcast(d->tag, 16, MPI_UNSIGNED_CHAR, 0, MPI_COMM_WORLD);
-    MPI_Bcast(d->cipher, d->length, MPI_UNSIGNED_CHAR, 0, MPI_COMM_WORLD);
+    MPI_Bcast(d->cipher, cipher_length(d->length), MPI_UNSIGNED_CHAR, 0, MPI_COMM_WORLD);
     return 1;
 }
 

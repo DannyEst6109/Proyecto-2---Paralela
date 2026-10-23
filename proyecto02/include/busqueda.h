@@ -3,6 +3,7 @@
  */
 #ifndef BUSQUEDA_H
 #define BUSQUEDA_H
+#include <time.h>
 #include <unistd.h>
 #include "aes_comun.h"
 
@@ -55,16 +56,19 @@ static inline int contains_phrase(const unsigned char *text, int length, const c
     return 0;
 }
 
-/* Descifra con la candidata y busca la frase. No exige la etiqueta GCM: la unica
- * comprobacion es la frase, como pide el enunciado. Retorna 1 si la contiene,
- * 0 si no y -1 ante un error de la API.
+/* Descifra con la candidata y busca la frase. La unica comprobacion es la frase,
+ * como pide el enunciado. Se desactiva el relleno PKCS#7 para descifrar bloques
+ * en bruto: asi una clave incorrecta no provoca un error de relleno, solo texto
+ * basura donde la frase no aparece. Retorna 1 si la contiene, 0 si no y -1 ante
+ * un error de la API.
  */
 static inline int try_phrase(EVP_CIPHER_CTX *ctx, uint64_t candidate, const Dataset *d,
         unsigned char plain[MAX_MESSAGE + 16], const char *phrase, int plen) {
     unsigned char key[16]; int out = 0;
     make_key(candidate, key);
-    if (EVP_DecryptInit_ex(ctx, EVP_aes_128_gcm(), NULL, key, d->nonce) != 1
-        || EVP_DecryptUpdate(ctx, plain, &out, d->cipher, d->length) != 1)
+    if (EVP_DecryptInit_ex(ctx, EVP_aes_128_ecb(), NULL, key, NULL) != 1
+        || EVP_CIPHER_CTX_set_padding(ctx, 0) != 1
+        || EVP_DecryptUpdate(ctx, plain, &out, d->cipher, cipher_length(d->length)) != 1)
         return -1;
     return contains_phrase(plain, out, phrase, plen);
 }
@@ -80,7 +84,7 @@ static inline double wall_seconds(void) {
     return (double)t.tv_sec + (double)t.tv_nsec / 1e9;
 }
 
-/* Reporte comun. Tras hallar la clave se confirma con la etiqueta GCM. */
+/* Reporte comun. Tras hallar la clave se descifra para mostrar el mensaje. */
 static inline void print_report(const char *mode, int processes, uint64_t found,
         uint64_t attempts, double elapsed, int timed_out, EVP_CIPHER_CTX *ctx,
         const Dataset *d, const Params *p) {
@@ -90,12 +94,10 @@ static inline void print_report(const char *mode, int processes, uint64_t found,
     printf("Claves probadas: %" PRIu64 "\n", attempts);
     if (found != NO_KEY) {
         unsigned char key[16]; make_key(found, key);
-        int auth = try_key(ctx, found, d, plain) == 1;
-        if (!auth) try_phrase(ctx, found, d, plain, p->phrase, (int)strlen(p->phrase));
+        try_phrase(ctx, found, d, plain, p->phrase, (int)strlen(p->phrase));
         printf("Clave encontrada: %" PRIu64 "\nClave AES (hex): ", found);
         print_hex(stdout, key, 16);
         printf("Mensaje: "); fwrite(plain, 1, (size_t)d->length, stdout); putchar('\n');
-        printf("Autenticacion GCM: %s\n", auth ? "correcta" : "no verificable");
     } else if (timed_out) printf("Tiempo limite alcanzado (%" PRIu64 " s) sin hallar la clave.\n", p->max_seconds);
     else puts("No se encontro la clave en el rango.");
     printf("Tiempo de busqueda: %.9f segundos\n", elapsed);

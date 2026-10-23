@@ -1,7 +1,7 @@
 /* Proyecto 02, inciso 3. Estrategia alternativa: familias de claves con balanceo
  * dinamico y terminacion temprana.
  *
- *  - Las claves se agrupan en 4 familias (bajos, patrones, ASCII, barrido alto).
+ *  - Las claves se agrupan en 4 familias (bajos, patrones, ASCII, barrido exhaustivo).
  *  - Cada familia se divide en bloques de `batch` claves. Un contador atomico por
  *    familia, alojado en el proceso 0 (ventana RMA), entrega el siguiente bloque.
  *  - El proceso p empieza por la familia p % 4; si se agota, toma bloques de las demas.
@@ -11,12 +11,12 @@
 #include "busqueda_mpi.h"
 
 #define USO "Uso: mpirun -np N busqueda_alternativa [-f frase] [-o offset] [-l claves_barrido] [-b lote] [-t segundos] archivo.aes\n" \
-    "  offset: inicio del barrido de respaldo (por defecto 2^56/4 = 18014398509481984).\n" \
+    "  offset: inicio del barrido exhaustivo de respaldo (por defecto 2^24, donde terminan los valores bajos).\n" \
     "  claves_barrido: claves a recorrer desde el offset (por defecto 2^63)."
 
 enum { FAM_BAJOS, FAM_PATRONES, FAM_ASCII, FAM_BARRIDO, NUM_FAM };
 static const char *const FAM_NOMBRE[NUM_FAM] = {
-    "valores bajos", "patrones humanos", "texto ASCII", "barrido alto"
+    "valores bajos", "patrones humanos", "texto ASCII", "barrido exhaustivo"
 };
 #define TAG_ENCONTRADA 77
 #define SONDEO 4096                      /* claves entre consultas de MPI_Test y reloj */
@@ -106,7 +106,11 @@ int main(int argc, char **argv) {
     int rank, size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank); MPI_Comm_size(MPI_COMM_WORLD, &size);
     Params p; Dataset d = {0};
-    init_params(&p, LIMITE_MAX, 65536, UINT64_C(1) << 54);
+    /* El barrido de respaldo arranca donde terminan los valores bajos (2^24). El
+     * offset es configurable con -o para acotar mediciones, pero por defecto NO se
+     * sintoniza a ninguna clave concreta: asi la ventaja medida proviene de las
+     * familias heuristicas y del balanceo, no de conocer la clave de antemano. */
+    init_params(&p, LIMITE_MAX, 65536, BAJOS_TOTAL);
     if (!mpi_setup(argc, argv, USO, &p, &d)) { MPI_Finalize(); return 1; }
     EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
     if (!ctx) mpi_fail("No se pudo crear el contexto AES.");

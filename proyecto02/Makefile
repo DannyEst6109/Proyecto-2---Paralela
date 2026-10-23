@@ -1,7 +1,8 @@
 CC = gcc
 MPICC = mpicc
 CFLAGS = -std=c11 -O2 -Wall -Wextra -Wpedantic
-CPPFLAGS = -Iinclude
+# -std=c11 oculta getopt y clock_gettime; _POSIX_C_SOURCE los vuelve a exponer.
+CPPFLAGS = -Iinclude -D_POSIX_C_SOURCE=200809L
 LDLIBS = -lcrypto
 
 # En macOS (Homebrew) OpenSSL no esta en la ruta por defecto.

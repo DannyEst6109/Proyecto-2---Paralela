@@ -1,10 +1,9 @@
 /* Proyecto 02, inciso 2. Busqueda secuencial: referencia para calcular el speedup. */
-#define _POSIX_C_SOURCE 200809L
 #include <time.h>
 #include "busqueda.h"
 
-#define USO "Uso: busqueda_secuencial [-f frase] [-l limite] [-t segundos] archivo.aes\n" \
-    "  Prueba las claves 0..limite-1 (por defecto 4294967296)."
+#define USO "Uso: busqueda_secuencial [-f frase] [-o offset] [-l limite] [-t segundos] archivo.aes\n" \
+    "  Prueba las claves offset..offset+limite-1 (offset 0 y limite 4294967296 por defecto)."
 
 int main(int argc, char **argv) {
     Params p; const char *file; Dataset d = {0};
@@ -18,8 +17,10 @@ int main(int argc, char **argv) {
     unsigned char plain[MAX_MESSAGE + 16];
     int plen = (int)strlen(p.phrase), status = 0, timed_out = 0;
     uint64_t found = NO_KEY, attempts = 0;
+    /* Fin de la ventana; se evita el desbordamiento al sumar offset + limite. */
+    uint64_t hi = p.offset + p.limit; if (hi < p.offset) hi = UINT64_MAX;
     double start = wall_seconds();
-    for (uint64_t k = 0; k < p.limit; ++k) {
+    for (uint64_t k = p.offset; k < hi; ++k) {
         int result = try_phrase(ctx, k, &d, plain, p.phrase, plen); ++attempts;
         if (result < 0) { fputs("Error de API AES.\n", stderr); status = 1; break; }
         if (result) { found = k; break; }
@@ -27,6 +28,7 @@ int main(int argc, char **argv) {
         if (p.max_seconds && (attempts & 4095) == 0 && wall_seconds() - start >= (double)p.max_seconds) {
             timed_out = 1; break;
         }
+        if (k == UINT64_MAX) break;   /* evita el desbordamiento del contador */
     }
     double elapsed = wall_seconds() - start;
     if (!status) {

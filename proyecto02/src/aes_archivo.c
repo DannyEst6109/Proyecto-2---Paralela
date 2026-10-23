@@ -1,4 +1,4 @@
-/* Proyecto 02, inciso 1. Reutiliza AES-128-GCM y AESLAB1 del Laboratorio 03. */
+/* Proyecto 02, inciso 1. Cifra y descifra archivos de texto con AES-128 (ECB). */
 #include "aes_comun.h"
 
 /* Lee bytes sin modificar saltos de linea ni la codificacion del texto. */
@@ -23,10 +23,8 @@ static int write_output(const char *path, const Dataset *data,
     FILE *file = fopen(path, "wbx");
     if (!file) { perror(path); return 0; }
     if (encrypting) {
-        fprintf(file, "AESLAB1\n%d\n", data->length);
-        print_hex(file, data->nonce, 12);
-        print_hex(file, data->tag, 16);
-        print_hex(file, data->cipher, data->length);
+        fprintf(file, "AESECB1\n%d\n", data->length);
+        print_hex(file, data->cipher, cipher_length(data->length));
     } else {
         if (fwrite(plain, 1, (size_t)data->length, file) != (size_t)data->length) {
             fclose(file);
@@ -63,8 +61,7 @@ int main(int argc, char **argv) {
     int status = 1;
     if (encrypting) {
         if (!read_text(argv[2], plain, &data.length)) goto done;
-        if (RAND_bytes(data.nonce, sizeof data.nonce) != 1
-                || !encrypt_message(ctx, number, plain, data.length, &data)) {
+        if (!encrypt_message(ctx, number, plain, data.length, &data)) {
             fputs("Error al cifrar el archivo.\n", stderr);
             goto done;
         }
@@ -73,24 +70,24 @@ int main(int argc, char **argv) {
             fputs("No se pudo leer el archivo AES o su formato es invalido.\n", stderr);
             goto done;
         }
-        int result = try_key(ctx, number, &data, plain);
+        int recovered = 0;
+        int result = decrypt_message(ctx, number, &data, plain, &recovered);
         if (result != 1) {
             fputs(result == 0 ? "Clave incorrecta o contenido alterado.\n"
                 : "Error de la biblioteca al descifrar.\n", stderr);
             goto done;
         }
+        data.length = recovered;
     }
-    /* Solo se guarda o muestra texto descifrado despues de autenticarlo. */
     if (!write_output(argv[3], &data, plain, encrypting)) goto done;
     make_key(number, key);
     printf("Operacion: %s\nEntrada: %s\nSalida: %s\nLongitud: %d bytes\n",
         argv[1], argv[2], argv[3], data.length);
     printf("Clave AES-128 (hex): "); print_hex(stdout, key, 16);
-    printf("Texto cifrado (hex): "); print_hex(stdout, data.cipher, data.length);
+    printf("Texto cifrado (hex): "); print_hex(stdout, data.cipher, cipher_length(data.length));
     printf("%s:\n", encrypting ? "Texto original" : "Texto recuperado");
     fwrite(plain, 1, (size_t)data.length, stdout);
     putchar('\n');
-    if (decrypting) puts("Autenticacion GCM: correcta");
     status = 0;
 done:
     OPENSSL_cleanse(plain, sizeof plain);
