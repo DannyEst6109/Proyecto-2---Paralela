@@ -1,0 +1,23 @@
+carlosestrada@GP01-CDESTRADA:~/Proyecto-2---Paralela$ date '+%Y-%m-%d %H:%M:%S %Z' && uname -sr
+2026-10-23 14:07:12 CST
+Linux 6.18.33.2-microsoft-standard-WSL2
+carlosestrada@GP01-CDESTRADA:~/Proyecto-2---Paralela$ gcc --version | head -1 && mpirun --version 2>/dev/null | head -1 && openssl version
+gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0
+OpenSSL 3.5.5 27 Jan 2026 (Library: OpenSSL 3.5.5 27 Jan 2026)
+carlosestrada@GP01-CDESTRADA:~/Proyecto-2---Paralela$ make clean >/dev/null && make && make laboratorio | grep -E 'gcc|mpicc'
+make -C proyecto02
+make[1]: Entering directory '/mnt/c/Users/carlos.estrada/Documents/U/Proyecto-2---Paralela/proyecto02'
+mkdir -p build
+gcc -Iinclude -D_POSIX_C_SOURCE=200809L -std=c11 -O2 -Wall -Wextra -Wpedantic src/aes_archivo.c -o build/aes_archivo  -lcrypto
+gcc -Iinclude -D_POSIX_C_SOURCE=200809L -std=c11 -O2 -Wall -Wextra -Wpedantic src/busqueda_secuencial.c -o build/busqueda_secuencial  -lcrypto
+mpicc -Iinclude -D_POSIX_C_SOURCE=200809L -std=c11 -O2 -Wall -Wextra -Wpedantic src/busqueda_base.c -o build/busqueda_base  -lcrypto
+mpicc -Iinclude -D_POSIX_C_SOURCE=200809L -std=c11 -O2 -Wall -Wextra -Wpedantic src/busqueda_alternativa.c -o build/busqueda_alternativa  -lcrypto
+make[1]: Leaving directory '/mnt/c/Users/carlos.estrada/Documents/U/Proyecto-2---Paralela/proyecto02'
+gcc -std=c11 -O2 -Wall -Wextra -Wpedantic busqueda_clave_aes_secuencial.c -o busqueda_clave_aes_secuencial -lcrypto
+gcc -std=c11 -O2 -Wall -Wextra -Wpedantic busqueda_clave_aes_mejorada.c -o busqueda_clave_aes_mejorada -lcrypto
+mpicc -std=c11 -O2 -Wall -Wextra -Wpedantic busqueda_clave_aes_mpi.c -o busqueda_clave_aes_mpi -lcrypto
+carlosestrada@GP01-CDESTRADA:~/Proyecto-2---Paralela$ ls proyecto02/build
+aes_archivo
+busqueda_alternativa
+busqueda_base
+busqueda_secuencial

@@ -1,9 +1,9 @@
-Fecha: 2026-10-22T22:18:42-06:00
+Fecha: 2026-10-23T13:44:57-06:00
 
 $ proyecto02/build/aes_archivo cifrar proyecto02/datos/prueba_proyecto2.txt evidencias/inciso2/datos/clave_a.aes 123456
 Operacion: cifrar
-Entrada: /home/sestradat/Escritorio/u/semestre/raro 1 /Paralela/Proyecto-2---Paralela/proyecto02/datos/prueba_proyecto2.txt
-Salida: /home/sestradat/Escritorio/u/semestre/raro 1 /Paralela/Proyecto-2---Paralela/evidencias/inciso2/datos/clave_a.aes
+Entrada: /mnt/c/Users/carlos.estrada/Documents/U/Proyecto-2---Paralela/proyecto02/datos/prueba_proyecto2.txt
+Salida: /mnt/c/Users/carlos.estrada/Documents/U/Proyecto-2---Paralela/evidencias/inciso2/datos/clave_a.aes
 Longitud: 33 bytes
 Clave AES-128 (hex): 0000000000000000000000000001e240
 Texto cifrado (hex): 66b6cff0452c170ac232aad7834eb2b1cb67e802b7ed98314e209a5e07ff3ba6a0e749b7ce41e11c0bb27606738586f6
@@ -14,8 +14,8 @@ Esta es una prueba de proyecto 2
 
 $ proyecto02/build/aes_archivo cifrar proyecto02/datos/prueba_proyecto2.txt evidencias/inciso2/datos/clave_b.aes 18014398509481984
 Operacion: cifrar
-Entrada: /home/sestradat/Escritorio/u/semestre/raro 1 /Paralela/Proyecto-2---Paralela/proyecto02/datos/prueba_proyecto2.txt
-Salida: /home/sestradat/Escritorio/u/semestre/raro 1 /Paralela/Proyecto-2---Paralela/evidencias/inciso2/datos/clave_b.aes
+Entrada: /mnt/c/Users/carlos.estrada/Documents/U/Proyecto-2---Paralela/proyecto02/datos/prueba_proyecto2.txt
+Salida: /mnt/c/Users/carlos.estrada/Documents/U/Proyecto-2---Paralela/evidencias/inciso2/datos/clave_b.aes
 Longitud: 33 bytes
 Clave AES-128 (hex): 00000000000000000040000000000000
 Texto cifrado (hex): cb386cb79ba30391a112fdf7da3d069457c60b7c42b843a01066754155a9df8dcdad3a31002685ae345c80c0c633e923
@@ -26,8 +26,8 @@ Esta es una prueba de proyecto 2
 
 $ proyecto02/build/aes_archivo cifrar proyecto02/datos/prueba_proyecto2.txt evidencias/inciso2/datos/clave_c.aes 18014398509481985
 Operacion: cifrar
-Entrada: /home/sestradat/Escritorio/u/semestre/raro 1 /Paralela/Proyecto-2---Paralela/proyecto02/datos/prueba_proyecto2.txt
-Salida: /home/sestradat/Escritorio/u/semestre/raro 1 /Paralela/Proyecto-2---Paralela/evidencias/inciso2/datos/clave_c.aes
+Entrada: /mnt/c/Users/carlos.estrada/Documents/U/Proyecto-2---Paralela/proyecto02/datos/prueba_proyecto2.txt
+Salida: /mnt/c/Users/carlos.estrada/Documents/U/Proyecto-2---Paralela/evidencias/inciso2/datos/clave_c.aes
 Longitud: 33 bytes
 Clave AES-128 (hex): 00000000000000000040000000000001
 Texto cifrado (hex): 56766616208517812cbb60b4eccc2ac96fea29ed087bd9f1ad63033ba68ea4ab5a5b6a37be6d9a9557a3758196dae629
@@ -44,8 +44,8 @@ Clave encontrada: 123456
 Clave AES (hex): 0000000000000000000000000001e240
 Mensaje: Esta es una prueba de proyecto 2
 
-Tiempo de busqueda: 0.080096182 segundos
-Rendimiento: 1541359 claves/s
+Tiempo de busqueda: 0.051859547 segundos
+Rendimiento: 2380603 claves/s
 [codigo de salida: 0]
 
 $ proyecto02/build/busqueda_secuencial evidencias/inciso2/datos/clave_a.aes
@@ -56,8 +56,8 @@ Clave encontrada: 123456
 Clave AES (hex): 0000000000000000000000000001e240
 Mensaje: Esta es una prueba de proyecto 2
 
-Tiempo de busqueda: 0.070348119 segundos
-Rendimiento: 1754944 claves/s
+Tiempo de busqueda: 0.057628703 segundos
+Rendimiento: 2142283 claves/s
 [codigo de salida: 0]
 
 $ proyecto02/build/busqueda_secuencial evidencias/inciso2/datos/clave_a.aes
@@ -68,8 +68,8 @@ Clave encontrada: 123456
 Clave AES (hex): 0000000000000000000000000001e240
 Mensaje: Esta es una prueba de proyecto 2
 
-Tiempo de busqueda: 0.067435512 segundos
-Rendimiento: 1830742 claves/s
+Tiempo de busqueda: 0.048651921 segundos
+Rendimiento: 2537557 claves/s
 [codigo de salida: 0]
 
 $ proyecto02/build/busqueda_secuencial evidencias/inciso2/datos/clave_a.aes
@@ -80,8 +80,8 @@ Clave encontrada: 123456
 Clave AES (hex): 0000000000000000000000000001e240
 Mensaje: Esta es una prueba de proyecto 2
 
-Tiempo de busqueda: 0.064371728 segundos
-Rendimiento: 1917876 claves/s
+Tiempo de busqueda: 0.048640208 segundos
+Rendimiento: 2538168 claves/s
 [codigo de salida: 0]
 
 $ proyecto02/build/busqueda_secuencial evidencias/inciso2/datos/clave_a.aes
@@ -92,8 +92,8 @@ Clave encontrada: 123456
 Clave AES (hex): 0000000000000000000000000001e240
 Mensaje: Esta es una prueba de proyecto 2
 
-Tiempo de busqueda: 0.062638358 segundos
-Rendimiento: 1970949 claves/s
+Tiempo de busqueda: 0.046518793 segundos
+Rendimiento: 2653917 claves/s
 [codigo de salida: 0]
 
 $ mpirun -np 4 proyecto02/build/busqueda_base evidencias/inciso2/datos/clave_a.aes
@@ -104,8 +104,8 @@ Clave encontrada: 123456
 Clave AES (hex): 0000000000000000000000000001e240
 Mensaje: Esta es una prueba de proyecto 2
 
-Tiempo de busqueda: 0.036863061 segundos
-Rendimiento: 6904717 claves/s
+Tiempo de busqueda: 0.038430724 segundos
+Rendimiento: 6623060 claves/s
 [codigo de salida: 0]
 
 $ mpirun -np 4 proyecto02/build/busqueda_base evidencias/inciso2/datos/clave_a.aes
@@ -116,8 +116,8 @@ Clave encontrada: 123456
 Clave AES (hex): 0000000000000000000000000001e240
 Mensaje: Esta es una prueba de proyecto 2
 
-Tiempo de busqueda: 0.035968222 segundos
-Rendimiento: 7076497 claves/s
+Tiempo de busqueda: 0.038551657 segundos
+Rendimiento: 6602284 claves/s
 [codigo de salida: 0]
 
 $ mpirun -np 4 proyecto02/build/busqueda_base evidencias/inciso2/datos/clave_a.aes
@@ -128,8 +128,8 @@ Clave encontrada: 123456
 Clave AES (hex): 0000000000000000000000000001e240
 Mensaje: Esta es una prueba de proyecto 2
 
-Tiempo de busqueda: 0.034883087 segundos
-Rendimiento: 7296631 claves/s
+Tiempo de busqueda: 0.046039061 segundos
+Rendimiento: 5528545 claves/s
 [codigo de salida: 0]
 
 $ mpirun -np 4 proyecto02/build/busqueda_base evidencias/inciso2/datos/clave_a.aes
@@ -140,8 +140,8 @@ Clave encontrada: 123456
 Clave AES (hex): 0000000000000000000000000001e240
 Mensaje: Esta es una prueba de proyecto 2
 
-Tiempo de busqueda: 0.034174873 segundos
-Rendimiento: 7447840 claves/s
+Tiempo de busqueda: 0.046135029 segundos
+Rendimiento: 5517044 claves/s
 [codigo de salida: 0]
 
 $ mpirun -np 4 proyecto02/build/busqueda_base evidencias/inciso2/datos/clave_a.aes
@@ -152,45 +152,69 @@ Clave encontrada: 123456
 Clave AES (hex): 0000000000000000000000000001e240
 Mensaje: Esta es una prueba de proyecto 2
 
-Tiempo de busqueda: 0.034802819 segundos
-Rendimiento: 7313459 claves/s
+Tiempo de busqueda: 0.047828926 segundos
+Rendimiento: 5321654 claves/s
 [codigo de salida: 0]
 
 $ mpirun -np 4 proyecto02/build/busqueda_alternativa evidencias/inciso2/datos/clave_a.aes
+[GP01-CDESTRADA:00532] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00531] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00529] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00530] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
 Ejecucion: alternativa (familias, balanceo dinamico, Open MPI) | Procesos: 4
 Frase de busqueda: "es una prueba de"
-Claves probadas: 576635
+Claves probadas: 336449
 Clave encontrada: 123456
 Clave AES (hex): 0000000000000000000000000001e240
 Mensaje: Esta es una prueba de proyecto 2
 
-Tiempo de busqueda: 0.097934518 segundos
-Rendimiento: 5887965 claves/s
+Tiempo de busqueda: 0.054318559 segundos
+Rendimiento: 6193997 claves/s
   Familia valores bajos    : 123457 claves
-  Familia patrones humanos : 68154 claves
-  Familia texto ASCII      : 225280 claves
-  Familia barrido exhaustivo: 159744 claves
+  Familia patrones humanos : 61440 claves
+  Familia texto ASCII      : 73728 claves
+  Familia barrido exhaustivo: 77824 claves
 Familia de la clave: valores bajos
 [codigo de salida: 0]
 
 $ mpirun -np 4 proyecto02/build/busqueda_alternativa evidencias/inciso2/datos/clave_a.aes
+[GP01-CDESTRADA:00555] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00553] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00554] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00552] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
 Ejecucion: alternativa (familias, balanceo dinamico, Open MPI) | Procesos: 4
 Frase de busqueda: "es una prueba de"
-Claves probadas: 478331
+Claves probadas: 470139
 Clave encontrada: 123456
 Clave AES (hex): 0000000000000000000000000001e240
 Mensaje: Esta es una prueba de proyecto 2
 
-Tiempo de busqueda: 0.067327405 segundos
-Rendimiento: 7104551 claves/s
+Tiempo de busqueda: 0.085429740 segundos
+Rendimiento: 5503224 claves/s
   Familia valores bajos    : 123457 claves
   Familia patrones humanos : 68154 claves
-  Familia texto ASCII      : 159744 claves
-  Familia barrido exhaustivo: 126976 claves
+  Familia texto ASCII      : 122880 claves
+  Familia barrido exhaustivo: 155648 claves
 Familia de la clave: valores bajos
 [codigo de salida: 0]
 
 $ mpirun -np 4 proyecto02/build/busqueda_alternativa evidencias/inciso2/datos/clave_a.aes
+[GP01-CDESTRADA:00576] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00575] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00577] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00578] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
 Ejecucion: alternativa (familias, balanceo dinamico, Open MPI) | Procesos: 4
 Frase de busqueda: "es una prueba de"
 Claves probadas: 449659
@@ -198,159 +222,212 @@ Clave encontrada: 123456
 Clave AES (hex): 0000000000000000000000000001e240
 Mensaje: Esta es una prueba de proyecto 2
 
-Tiempo de busqueda: 0.068046157 segundos
-Rendimiento: 6608147 claves/s
-  Familia valores bajos    : 123457 claves
-  Familia patrones humanos : 68154 claves
-  Familia texto ASCII      : 147456 claves
-  Familia barrido exhaustivo: 110592 claves
-Familia de la clave: valores bajos
-[codigo de salida: 0]
-
-$ mpirun -np 4 proyecto02/build/busqueda_alternativa evidencias/inciso2/datos/clave_a.aes
-Ejecucion: alternativa (familias, balanceo dinamico, Open MPI) | Procesos: 4
-Frase de busqueda: "es una prueba de"
-Claves probadas: 461947
-Clave encontrada: 123456
-Clave AES (hex): 0000000000000000000000000001e240
-Mensaje: Esta es una prueba de proyecto 2
-
-Tiempo de busqueda: 0.070278013 segundos
-Rendimiento: 6573137 claves/s
+Tiempo de busqueda: 0.066894186 segundos
+Rendimiento: 6721944 claves/s
   Familia valores bajos    : 123457 claves
   Familia patrones humanos : 68154 claves
   Familia texto ASCII      : 151552 claves
-  Familia barrido exhaustivo: 118784 claves
+  Familia barrido exhaustivo: 106496 claves
 Familia de la clave: valores bajos
 [codigo de salida: 0]
 
 $ mpirun -np 4 proyecto02/build/busqueda_alternativa evidencias/inciso2/datos/clave_a.aes
+[GP01-CDESTRADA:00599] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00600] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00601] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00598] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
 Ejecucion: alternativa (familias, balanceo dinamico, Open MPI) | Procesos: 4
 Frase de busqueda: "es una prueba de"
-Claves probadas: 461947
+Claves probadas: 466043
 Clave encontrada: 123456
 Clave AES (hex): 0000000000000000000000000001e240
 Mensaje: Esta es una prueba de proyecto 2
 
-Tiempo de busqueda: 0.066433039 segundos
-Rendimiento: 6953573 claves/s
+Tiempo de busqueda: 0.076147867 segundos
+Rendimiento: 6120237 claves/s
   Familia valores bajos    : 123457 claves
   Familia patrones humanos : 68154 claves
-  Familia texto ASCII      : 155648 claves
-  Familia barrido exhaustivo: 114688 claves
+  Familia texto ASCII      : 167936 claves
+  Familia barrido exhaustivo: 106496 claves
+Familia de la clave: valores bajos
+[codigo de salida: 0]
+
+$ mpirun -np 4 proyecto02/build/busqueda_alternativa evidencias/inciso2/datos/clave_a.aes
+[GP01-CDESTRADA:00622] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00623] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00621] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00624] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+Ejecucion: alternativa (familias, balanceo dinamico, Open MPI) | Procesos: 4
+Frase de busqueda: "es una prueba de"
+Claves probadas: 449659
+Clave encontrada: 123456
+Clave AES (hex): 0000000000000000000000000001e240
+Mensaje: Esta es una prueba de proyecto 2
+
+Tiempo de busqueda: 0.072173317 segundos
+Rendimiento: 6230267 claves/s
+  Familia valores bajos    : 123457 claves
+  Familia patrones humanos : 68154 claves
+  Familia texto ASCII      : 126976 claves
+  Familia barrido exhaustivo: 131072 claves
 Familia de la clave: valores bajos
 [codigo de salida: 0]
 
 $ proyecto02/build/busqueda_secuencial -t 60 evidencias/inciso2/datos/clave_b.aes
 Ejecucion: secuencial | Procesos: 1
 Frase de busqueda: "es una prueba de"
-Claves probadas: 122359808
+Claves probadas: 151523328
 Tiempo limite alcanzado (60 s) sin hallar la clave.
-Tiempo de busqueda: 60.000798256 segundos
-Rendimiento: 2039303 claves/s
+Tiempo de busqueda: 60.000650000 segundos
+Rendimiento: 2525361 claves/s
 [codigo de salida: 3]
 
 $ mpirun -np 4 proyecto02/build/busqueda_base -t 60 evidencias/inciso2/datos/clave_b.aes
 Ejecucion: base (lotes estaticos, Open MPI) | Procesos: 4
 Frase de busqueda: "es una prueba de"
-Claves probadas: 381943808
+Claves probadas: 301989888
 Tiempo limite alcanzado (60 s) sin hallar la clave.
-Tiempo de busqueda: 60.026515981 segundos
-Rendimiento: 6362918 claves/s
+Tiempo de busqueda: 60.043535804 segundos
+Rendimiento: 5029515 claves/s
 --------------------------------------------------------------------------
-Primary job  terminated normally, but 1 process returned
-a non-zero exit code. Per user-direction, the job has been aborted.
+Sorry!  You were supposed to get help about:
+    prun:non-zero-exit
+But I couldn't open the help file:
+    /usr/lib/x86_64-linux-gnu/pmix2/share/pmix/help-prun.txt: No such file or directory
+    /usr/lib/x86_64-linux-gnu/prrte3/share/prte/help-prun.txt: No such file or directory.
+Sorry!
 --------------------------------------------------------------------------
---------------------------------------------------------------------------
-mpirun detected that one or more processes exited with non-zero status, thus causing
-the job to be terminated. The first process to do so was:
-
-  Process name: [[1716,1],1]
-  Exit code:    3
---------------------------------------------------------------------------
-[codigo de salida: 3]
+ [codigo de salida: 3]
 
 $ mpirun -np 4 proyecto02/build/busqueda_alternativa evidencias/inciso2/datos/clave_b.aes
+[GP01-CDESTRADA:00684] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00685] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00686] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00683] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
 Ejecucion: alternativa (familias, balanceo dinamico, Open MPI) | Procesos: 4
 Frase de busqueda: "es una prueba de"
-Claves probadas: 276954
+Claves probadas: 350682
 Clave encontrada: 18014398509481984
 Clave AES (hex): 00000000000000000040000000000000
 Mensaje: Esta es una prueba de proyecto 2
 
-Tiempo de busqueda: 0.037587059 segundos
-Rendimiento: 7368334 claves/s
-  Familia valores bajos    : 69632 claves
+Tiempo de busqueda: 0.074606202 segundos
+Rendimiento: 4700440 claves/s
+  Familia valores bajos    : 114688 claves
   Familia patrones humanos : 68058 claves
-  Familia texto ASCII      : 69632 claves
-  Familia barrido exhaustivo: 69632 claves
+  Familia texto ASCII      : 90112 claves
+  Familia barrido exhaustivo: 77824 claves
 Familia de la clave: patrones humanos
 [codigo de salida: 0]
 
 $ mpirun -np 4 proyecto02/build/busqueda_alternativa evidencias/inciso2/datos/clave_b.aes
+[GP01-CDESTRADA:00707] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00708] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00709] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00706] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
 Ejecucion: alternativa (familias, balanceo dinamico, Open MPI) | Procesos: 4
 Frase de busqueda: "es una prueba de"
-Claves probadas: 285146
+Claves probadas: 334298
 Clave encontrada: 18014398509481984
 Clave AES (hex): 00000000000000000040000000000000
 Mensaje: Esta es una prueba de proyecto 2
 
-Tiempo de busqueda: 0.041551400 segundos
-Rendimiento: 6862488 claves/s
-  Familia valores bajos    : 73728 claves
-  Familia patrones humanos : 68058 claves
-  Familia texto ASCII      : 69632 claves
-  Familia barrido exhaustivo: 73728 claves
-Familia de la clave: patrones humanos
-[codigo de salida: 0]
-
-$ mpirun -np 4 proyecto02/build/busqueda_alternativa evidencias/inciso2/datos/clave_b.aes
-Ejecucion: alternativa (familias, balanceo dinamico, Open MPI) | Procesos: 4
-Frase de busqueda: "es una prueba de"
-Claves probadas: 416218
-Clave encontrada: 18014398509481984
-Clave AES (hex): 00000000000000000040000000000000
-Mensaje: Esta es una prueba de proyecto 2
-
-Tiempo de busqueda: 0.074302037 segundos
-Rendimiento: 5601704 claves/s
-  Familia valores bajos    : 86016 claves
-  Familia patrones humanos : 68058 claves
-  Familia texto ASCII      : 126976 claves
-  Familia barrido exhaustivo: 135168 claves
-Familia de la clave: patrones humanos
-[codigo de salida: 0]
-
-$ mpirun -np 4 proyecto02/build/busqueda_alternativa evidencias/inciso2/datos/clave_b.aes
-Ejecucion: alternativa (familias, balanceo dinamico, Open MPI) | Procesos: 4
-Frase de busqueda: "es una prueba de"
-Claves probadas: 289242
-Clave encontrada: 18014398509481984
-Clave AES (hex): 00000000000000000040000000000000
-Mensaje: Esta es una prueba de proyecto 2
-
-Tiempo de busqueda: 0.043463818 segundos
-Rendimiento: 6654777 claves/s
+Tiempo de busqueda: 0.060111856 segundos
+Rendimiento: 5561266 claves/s
   Familia valores bajos    : 77824 claves
   Familia patrones humanos : 68058 claves
-  Familia texto ASCII      : 73728 claves
-  Familia barrido exhaustivo: 69632 claves
+  Familia texto ASCII      : 98304 claves
+  Familia barrido exhaustivo: 90112 claves
 Familia de la clave: patrones humanos
 [codigo de salida: 0]
 
 $ mpirun -np 4 proyecto02/build/busqueda_alternativa evidencias/inciso2/datos/clave_b.aes
+[GP01-CDESTRADA:00730] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00731] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00729] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00732] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
 Ejecucion: alternativa (familias, balanceo dinamico, Open MPI) | Procesos: 4
 Frase de busqueda: "es una prueba de"
-Claves probadas: 301530
+Claves probadas: 268762
 Clave encontrada: 18014398509481984
 Clave AES (hex): 00000000000000000040000000000000
 Mensaje: Esta es una prueba de proyecto 2
 
-Tiempo de busqueda: 0.045685779 segundos
-Rendimiento: 6600084 claves/s
-  Familia valores bajos    : 81920 claves
+Tiempo de busqueda: 0.050107993 segundos
+Rendimiento: 5363655 claves/s
+  Familia valores bajos    : 77824 claves
+  Familia patrones humanos : 68058 claves
+  Familia texto ASCII      : 61440 claves
+  Familia barrido exhaustivo: 61440 claves
+Familia de la clave: patrones humanos
+[codigo de salida: 0]
+
+$ mpirun -np 4 proyecto02/build/busqueda_alternativa evidencias/inciso2/datos/clave_b.aes
+[GP01-CDESTRADA:00753] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00752] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00755] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00754] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+Ejecucion: alternativa (familias, balanceo dinamico, Open MPI) | Procesos: 4
+Frase de busqueda: "es una prueba de"
+Claves probadas: 248282
+Clave encontrada: 18014398509481984
+Clave AES (hex): 00000000000000000040000000000000
+Mensaje: Esta es una prueba de proyecto 2
+
+Tiempo de busqueda: 0.045223865 segundos
+Rendimiento: 5490066 claves/s
+  Familia valores bajos    : 53248 claves
   Familia patrones humanos : 68058 claves
   Familia texto ASCII      : 73728 claves
+  Familia barrido exhaustivo: 53248 claves
+Familia de la clave: patrones humanos
+[codigo de salida: 0]
+
+$ mpirun -np 4 proyecto02/build/busqueda_alternativa evidencias/inciso2/datos/clave_b.aes
+[GP01-CDESTRADA:00778] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00777] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00776] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00775] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+Ejecucion: alternativa (familias, balanceo dinamico, Open MPI) | Procesos: 4
+Frase de busqueda: "es una prueba de"
+Claves probadas: 297434
+Clave encontrada: 18014398509481984
+Clave AES (hex): 00000000000000000040000000000000
+Mensaje: Esta es una prueba de proyecto 2
+
+Tiempo de busqueda: 0.054769740 segundos
+Rendimiento: 5430626 claves/s
+  Familia valores bajos    : 90112 claves
+  Familia patrones humanos : 68058 claves
+  Familia texto ASCII      : 61440 claves
   Familia barrido exhaustivo: 77824 claves
 Familia de la clave: patrones humanos
 [codigo de salida: 0]
@@ -358,113 +435,150 @@ Familia de la clave: patrones humanos
 $ proyecto02/build/busqueda_secuencial -t 60 evidencias/inciso2/datos/clave_c.aes
 Ejecucion: secuencial | Procesos: 1
 Frase de busqueda: "es una prueba de"
-Claves probadas: 108269568
+Claves probadas: 137826304
 Tiempo limite alcanzado (60 s) sin hallar la clave.
-Tiempo de busqueda: 60.001603352 segundos
-Rendimiento: 1804445 claves/s
+Tiempo de busqueda: 60.001267941 segundos
+Rendimiento: 2297057 claves/s
 [codigo de salida: 3]
 
 $ mpirun -np 4 proyecto02/build/busqueda_base -t 60 evidencias/inciso2/datos/clave_c.aes
 Ejecucion: base (lotes estaticos, Open MPI) | Procesos: 4
 Frase de busqueda: "es una prueba de"
-Claves probadas: 391118848
+Claves probadas: 293076992
 Tiempo limite alcanzado (60 s) sin hallar la clave.
-Tiempo de busqueda: 60.015161342 segundos
-Rendimiento: 6517001 claves/s
+Tiempo de busqueda: 60.033939673 segundos
+Rendimiento: 4881855 claves/s
 --------------------------------------------------------------------------
-Primary job  terminated normally, but 1 process returned
-a non-zero exit code. Per user-direction, the job has been aborted.
+Sorry!  You were supposed to get help about:
+    prun:non-zero-exit
+But I couldn't open the help file:
+    /usr/lib/x86_64-linux-gnu/pmix2/share/pmix/help-prun.txt: No such file or directory
+    /usr/lib/x86_64-linux-gnu/prrte3/share/prte/help-prun.txt: No such file or directory.
+Sorry!
 --------------------------------------------------------------------------
---------------------------------------------------------------------------
-mpirun detected that one or more processes exited with non-zero status, thus causing
-the job to be terminated. The first process to do so was:
-
-  Process name: [[3637,1],1]
-  Exit code:    3
---------------------------------------------------------------------------
-[codigo de salida: 3]
+ [codigo de salida: 3]
 
 $ mpirun -np 4 proyecto02/build/busqueda_alternativa evidencias/inciso2/datos/clave_c.aes
+[GP01-CDESTRADA:00821] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00818] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00819] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00820] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
 Ejecucion: alternativa (familias, balanceo dinamico, Open MPI) | Procesos: 4
 Frase de busqueda: "es una prueba de"
-Claves probadas: 367067
+Claves probadas: 297435
 Clave encontrada: 18014398509481985
 Clave AES (hex): 00000000000000000040000000000001
 Mensaje: Esta es una prueba de proyecto 2
 
-Tiempo de busqueda: 0.064108736 segundos
-Rendimiento: 5725694 claves/s
-  Familia valores bajos    : 118784 claves
+Tiempo de busqueda: 0.051416061 segundos
+Rendimiento: 5784866 claves/s
+  Familia valores bajos    : 86016 claves
+  Familia patrones humanos : 68059 claves
+  Familia texto ASCII      : 65536 claves
+  Familia barrido exhaustivo: 77824 claves
+Familia de la clave: patrones humanos
+[codigo de salida: 0]
+
+$ mpirun -np 4 proyecto02/build/busqueda_alternativa evidencias/inciso2/datos/clave_c.aes
+[GP01-CDESTRADA:00842] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00844] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00841] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00843] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+Ejecucion: alternativa (familias, balanceo dinamico, Open MPI) | Procesos: 4
+Frase de busqueda: "es una prueba de"
+Claves probadas: 342491
+Clave encontrada: 18014398509481985
+Clave AES (hex): 00000000000000000040000000000001
+Mensaje: Esta es una prueba de proyecto 2
+
+Tiempo de busqueda: 0.063870698 segundos
+Rendimiento: 5362255 claves/s
+  Familia valores bajos    : 69632 claves
   Familia patrones humanos : 68059 claves
   Familia texto ASCII      : 114688 claves
-  Familia barrido exhaustivo: 65536 claves
+  Familia barrido exhaustivo: 90112 claves
 Familia de la clave: patrones humanos
 [codigo de salida: 0]
 
 $ mpirun -np 4 proyecto02/build/busqueda_alternativa evidencias/inciso2/datos/clave_c.aes
+[GP01-CDESTRADA:00866] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00865] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00867] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00864] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
 Ejecucion: alternativa (familias, balanceo dinamico, Open MPI) | Procesos: 4
 Frase de busqueda: "es una prueba de"
-Claves probadas: 289243
+Claves probadas: 281051
 Clave encontrada: 18014398509481985
 Clave AES (hex): 00000000000000000040000000000001
 Mensaje: Esta es una prueba de proyecto 2
 
-Tiempo de busqueda: 0.045630819 segundos
-Rendimiento: 6338764 claves/s
-  Familia valores bajos    : 81920 claves
+Tiempo de busqueda: 0.049442217 segundos
+Rendimiento: 5684434 claves/s
+  Familia valores bajos    : 57344 claves
+  Familia patrones humanos : 68059 claves
+  Familia texto ASCII      : 49152 claves
+  Familia barrido exhaustivo: 106496 claves
+Familia de la clave: patrones humanos
+[codigo de salida: 0]
+
+$ mpirun -np 4 proyecto02/build/busqueda_alternativa evidencias/inciso2/datos/clave_c.aes
+[GP01-CDESTRADA:00890] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00889] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00888] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00887] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+Ejecucion: alternativa (familias, balanceo dinamico, Open MPI) | Procesos: 4
+Frase de busqueda: "es una prueba de"
+Claves probadas: 362971
+Clave encontrada: 18014398509481985
+Clave AES (hex): 00000000000000000040000000000001
+Mensaje: Esta es una prueba de proyecto 2
+
+Tiempo de busqueda: 0.068859279 segundos
+Rendimiento: 5271200 claves/s
+  Familia valores bajos    : 98304 claves
+  Familia patrones humanos : 68059 claves
+  Familia texto ASCII      : 98304 claves
+  Familia barrido exhaustivo: 98304 claves
+Familia de la clave: patrones humanos
+[codigo de salida: 0]
+
+$ mpirun -np 4 proyecto02/build/busqueda_alternativa evidencias/inciso2/datos/clave_c.aes
+[GP01-CDESTRADA:00913] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00911] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00912] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+[GP01-CDESTRADA:00910] ../../../../../../ompi/mca/osc/ucx/osc_ucx_component.c:375  Error: OSC UCX component priority set inside component query failed 
+ 
+Ejecucion: alternativa (familias, balanceo dinamico, Open MPI) | Procesos: 4
+Frase de busqueda: "es una prueba de"
+Claves probadas: 272859
+Clave encontrada: 18014398509481985
+Clave AES (hex): 00000000000000000040000000000001
+Mensaje: Esta es una prueba de proyecto 2
+
+Tiempo de busqueda: 0.056170561 segundos
+Rendimiento: 4857687 claves/s
+  Familia valores bajos    : 57344 claves
   Familia patrones humanos : 68059 claves
   Familia texto ASCII      : 65536 claves
-  Familia barrido exhaustivo: 73728 claves
-Familia de la clave: patrones humanos
-[codigo de salida: 0]
-
-$ mpirun -np 4 proyecto02/build/busqueda_alternativa evidencias/inciso2/datos/clave_c.aes
-Ejecucion: alternativa (familias, balanceo dinamico, Open MPI) | Procesos: 4
-Frase de busqueda: "es una prueba de"
-Claves probadas: 424411
-Clave encontrada: 18014398509481985
-Clave AES (hex): 00000000000000000040000000000001
-Mensaje: Esta es una prueba de proyecto 2
-
-Tiempo de busqueda: 0.084711404 segundos
-Rendimiento: 5010081 claves/s
-  Familia valores bajos    : 147456 claves
-  Familia patrones humanos : 68059 claves
-  Familia texto ASCII      : 73728 claves
-  Familia barrido exhaustivo: 135168 claves
-Familia de la clave: patrones humanos
-[codigo de salida: 0]
-
-$ mpirun -np 4 proyecto02/build/busqueda_alternativa evidencias/inciso2/datos/clave_c.aes
-Ejecucion: alternativa (familias, balanceo dinamico, Open MPI) | Procesos: 4
-Frase de busqueda: "es una prueba de"
-Claves probadas: 268763
-Clave encontrada: 18014398509481985
-Clave AES (hex): 00000000000000000040000000000001
-Mensaje: Esta es una prueba de proyecto 2
-
-Tiempo de busqueda: 0.039651121 segundos
-Rendimiento: 6778194 claves/s
-  Familia valores bajos    : 73728 claves
-  Familia patrones humanos : 68059 claves
-  Familia texto ASCII      : 65536 claves
-  Familia barrido exhaustivo: 61440 claves
-Familia de la clave: patrones humanos
-[codigo de salida: 0]
-
-$ mpirun -np 4 proyecto02/build/busqueda_alternativa evidencias/inciso2/datos/clave_c.aes
-Ejecucion: alternativa (familias, balanceo dinamico, Open MPI) | Procesos: 4
-Frase de busqueda: "es una prueba de"
-Claves probadas: 305627
-Clave encontrada: 18014398509481985
-Clave AES (hex): 00000000000000000040000000000001
-Mensaje: Esta es una prueba de proyecto 2
-
-Tiempo de busqueda: 0.046046652 segundos
-Rendimiento: 6637334 claves/s
-  Familia valores bajos    : 81920 claves
-  Familia patrones humanos : 68059 claves
-  Familia texto ASCII      : 73728 claves
   Familia barrido exhaustivo: 81920 claves
 Familia de la clave: patrones humanos
 [codigo de salida: 0]

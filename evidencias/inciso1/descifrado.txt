@@ -1,0 +1,12 @@
+carlosestrada@GP01-CDESTRADA:~/Proyecto-2---Paralela$ proyecto02/build/aes_archivo descifrar evidencias/inciso1/mensaje.aes evidencias/inciso1/recuperado.txt 123456
+Operacion: descifrar
+Entrada: evidencias/inciso1/mensaje.aes
+Salida: evidencias/inciso1/recuperado.txt
+Longitud: 33 bytes
+Clave AES-128 (hex): 0000000000000000000000000001e240
+Texto cifrado (hex): 66b6cff0452c170ac232aad7834eb2b1cb67e802b7ed98314e209a5e07ff3ba6a0e749b7ce41e11c0bb27606738586f6
+Texto recuperado:
+Esta es una prueba de proyecto 2
+
+carlosestrada@GP01-CDESTRADA:~/Proyecto-2---Paralela$ cat evidencias/inciso1/recuperado.txt
+Esta es una prueba de proyecto 2

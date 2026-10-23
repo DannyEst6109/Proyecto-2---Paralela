@@ -1,0 +1,40 @@
+carlosestrada@GP01-CDESTRADA:~/Proyecto-2---Paralela$ proyecto02/build/aes_archivo cifrar proyecto02/datos/prueba_proyecto2.txt evidencias/inciso2/datos/clave_a.aes 123456 | tail -4
+Texto cifrado (hex): 66b6cff0452c170ac232aad7834eb2b1cb67e802b7ed98314e209a5e07ff3ba6a0e749b7ce41e11c0bb27606738586f6
+Texto original:
+Esta es una prueba de proyecto 2
+
+carlosestrada@GP01-CDESTRADA:~/Proyecto-2---Paralela$ proyecto02/build/busqueda_secuencial evidencias/inciso2/datos/clave_a.aes
+Ejecucion: secuencial | Procesos: 1
+Frase de busqueda: "es una prueba de"
+Claves probadas: 123457
+Clave encontrada: 123456
+Clave AES (hex): 0000000000000000000000000001e240
+Mensaje: Esta es una prueba de proyecto 2
+
+Tiempo de busqueda: 0.046650286 segundos
+Rendimiento: 2646436 claves/s
+carlosestrada@GP01-CDESTRADA:~/Proyecto-2---Paralela$ mpirun --mca osc ^ucx -np 4 proyecto02/build/busqueda_base evidencias/inciso2/datos/clave_a.aes
+Ejecucion: base (lotes estaticos, Open MPI) | Procesos: 4
+Frase de busqueda: "es una prueba de"
+Claves probadas: 254529
+Clave encontrada: 123456
+Clave AES (hex): 0000000000000000000000000001e240
+Mensaje: Esta es una prueba de proyecto 2
+
+Tiempo de busqueda: 0.040544713 segundos
+Rendimiento: 6277736 claves/s
+carlosestrada@GP01-CDESTRADA:~/Proyecto-2---Paralela$ mpirun --mca osc ^ucx -np 4 proyecto02/build/busqueda_alternativa evidencias/inciso2/datos/clave_a.aes
+Ejecucion: alternativa (familias, balanceo dinamico, Open MPI) | Procesos: 4
+Frase de busqueda: "es una prueba de"
+Claves probadas: 494715
+Clave encontrada: 123456
+Clave AES (hex): 0000000000000000000000000001e240
+Mensaje: Esta es una prueba de proyecto 2
+
+Tiempo de busqueda: 0.073352155 segundos
+Rendimiento: 6744383 claves/s
+  Familia valores bajos    : 123457 claves
+  Familia patrones humanos : 68154 claves
+  Familia texto ASCII      : 184320 claves
+  Familia barrido exhaustivo: 118784 claves
+Familia de la clave: valores bajos
