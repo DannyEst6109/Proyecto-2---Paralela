@@ -37,7 +37,7 @@ def main():
         source = root / "entrada 2.txt"
         cipher = root / "cifrado 2.aes"
         output = root / "no_crear.txt"
-        for key in ("123457", "-1", "abc", "18446744073709551616"):
+        for key in ("44", "123457", "-1", "abc", "18446744073709551616"):
             run("aes_archivo", "descifrar", cipher, output, key, ok=False)
             assert not output.exists()
             count += 1
@@ -51,8 +51,30 @@ def main():
         run("aes_archivo", "descifrar", damaged, output, "123456", ok=False)
         assert not output.exists()
         count += 1
+        # Un cambio en un bloque inicial conserva el relleno, pero debe fallar el HMAC.
+        for line_index, byte_index in ((2, 0), (3, 0)):
+            lines = cipher.read_text().splitlines()
+            value = lines[line_index]
+            lines[line_index] = ('1' if value[byte_index] != '1' else '0') + value[1:]
+            damaged.write_text('\n'.join(lines) + '\n')
+            run('aes_archivo', 'descifrar', damaged, output, '123456', ok=False)
+            assert not output.exists()
+            count += 1
+        # Cambiar la longitud sin cambiar el numero de bloques tambien se autentica.
+        lines = cipher.read_text().splitlines()
+        lines[1] = str(int(lines[1]) + 1)
+        damaged.write_text('\n'.join(lines) + '\n')
+        run('aes_archivo', 'descifrar', damaged, output, '123456', ok=False)
+        assert not output.exists()
+        count += 1
         damaged.write_bytes(cipher.read_bytes()[:15])
         run("aes_archivo", "descifrar", damaged, output, "123456", ok=False)
+        assert not output.exists()
+        count += 1
+        # Un formato sin autenticacion no se acepta como el formato nuevo.
+        lines = cipher.read_text().splitlines()
+        damaged.write_text('AESECB1\n' + '\n'.join(lines[1:3]) + '\n')
+        run('aes_archivo', 'descifrar', damaged, output, '123456', ok=False)
         assert not output.exists()
         count += 1
 
@@ -82,7 +104,7 @@ def main():
         assert not output.exists()
         count += 1
     print(f"PASS: {count} casos del inciso 1; archivos identicos byte a byte,")
-    print("limites, errores y rechazo de formatos ajenos (AES-128-ECB).")
+    print("limites, autenticacion HMAC, errores y formatos ajenos (AES-128-ECB).")
 
 
 if __name__ == "__main__":

@@ -32,5 +32,5 @@ build:
 	mkdir -p build
 
 clean:
-	rm -f $(SEQ) $(MPI)
+	rm -f $(SEQ) $(MPI) build/test_aes
 	-rmdir build

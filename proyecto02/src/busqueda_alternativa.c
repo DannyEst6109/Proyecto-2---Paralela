@@ -5,12 +5,13 @@
  *  - Cada familia se divide en bloques de `batch` claves. Un contador atomico por
  *    familia, alojado en el proceso 0 (ventana RMA), entrega el siguiente bloque.
  *  - El proceso p empieza por la familia p % 4; si se agota, toma bloques de las demas.
- *  - Quien halla la clave la avisa a los demas con MPI_Isend; el resto sondea con
+ *  - Quien halla la clave la avisa a los demas con MPI_Issend; el resto sondea con
  *    MPI_Test entre bloques y se detiene sin bloquearse.
  */
 #include "busqueda_mpi.h"
 
-#define USO "Uso: mpirun -np N busqueda_alternativa [-f frase] [-o offset] [-l claves_barrido] [-b lote] [-t segundos] archivo.aes\n" \
+#define USO "Uso: mpirun -np N busqueda_alternativa [-e] [-f frase] [-o offset] [-l claves_barrido] [-b lote] [-t segundos] archivo.aes\n" \
+    "  -e: solo barrido, para comparar la distribucion sobre el mismo espacio de claves.\n" \
     "  offset: inicio del barrido exhaustivo de respaldo (por defecto 2^24, donde terminan los valores bajos).\n" \
     "  claves_barrido: claves a recorrer desde el offset (por defecto 2^63)."
 
@@ -111,7 +112,7 @@ int main(int argc, char **argv) {
      * sintoniza a ninguna clave concreta: asi la ventaja medida proviene de las
      * familias heuristicas y del balanceo, no de conocer la clave de antemano. */
     init_params(&p, LIMITE_MAX, 65536, BAJOS_TOTAL);
-    if (!mpi_setup(argc, argv, USO, &p, &d)) { MPI_Finalize(); return 1; }
+    if (!mpi_setup(argc, argv, USO, &p, &d)) return mpi_finish(1);
     EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
     if (!ctx) mpi_fail("No se pudo crear el contexto AES.");
     unsigned char plain[MAX_MESSAGE + 16];
@@ -130,12 +131,16 @@ int main(int argc, char **argv) {
 
     /* Aviso no bloqueante: cada proceso deja una recepcion abierta. */
     uint64_t note[2], notice[2] = {NO_KEY, 0};
-    MPI_Request recv_req, send_req[64];
+    MPI_Request recv_req;
+    MPI_Request *send_req = malloc((size_t)size * sizeof *send_req);
+    if (!send_req) mpi_fail("No se pudieron reservar solicitudes MPI.");
     int nsend = 0, notified = 0;
     MPI_Irecv(note, 2, MPI_UINT64_T, MPI_ANY_SOURCE, TAG_ENCONTRADA, MPI_COMM_WORLD, &recv_req);
 
     uint64_t found = NO_KEY, found_family = 0, attempts[NUM_FAM] = {0};
     int exhausted[NUM_FAM] = {0}, timed_out = 0, done = 0;
+    if (p.exhaustive_only)
+        for (int f = 0; f < FAM_BARRIDO; ++f) exhausted[f] = 1;
     MPI_Barrier(MPI_COMM_WORLD);
     double start = MPI_Wtime();
     while (!done) {
@@ -157,7 +162,7 @@ int main(int argc, char **argv) {
                 if (result) {            /* avisar a todos y terminar */
                     found = k; found_family = (uint64_t)f; notice[0] = k; notice[1] = (uint64_t)f;
                     for (int r = 0; r < size; ++r)
-                        if (r != rank) MPI_Isend(notice, 2, MPI_UINT64_T, r, TAG_ENCONTRADA,
+                        if (r != rank) MPI_Issend(notice, 2, MPI_UINT64_T, r, TAG_ENCONTRADA,
                                                  MPI_COMM_WORLD, &send_req[nsend++]);
                     done = 1; break;
                 }
@@ -174,6 +179,9 @@ int main(int argc, char **argv) {
         if (!done) {                     /* sondeo tambien entre bloques */
             MPI_Test(&recv_req, &notified, MPI_STATUS_IGNORE);
             if (notified) done = 1;
+            if (p.max_seconds && MPI_Wtime() - start >= (double)p.max_seconds) {
+                timed_out = 1; done = 1;
+            }
         }
     }
     /* Consenso final: si hubo aciertos simultaneos gana la clave menor. */
@@ -187,20 +195,27 @@ int main(int argc, char **argv) {
     double local_time = MPI_Wtime() - start, elapsed = 0;
     int any_timeout = 0;
     MPI_Reduce(&local_time, &elapsed, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
-    MPI_Reduce(&timed_out, &any_timeout, 1, MPI_INT, MPI_MAX, 0, MPI_COMM_WORLD);
+    MPI_Allreduce(&timed_out, &any_timeout, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
 
-    /* Limpieza: completar envios, cancelar la recepcion abierta y vaciar avisos repetidos. */
-    if (nsend) MPI_Waitall(nsend, send_req, MPI_STATUSES_IGNORE);
+    /* Cancelar/completar la recepcion y drenar mientras progresan los envios.
+     * Issend solo completa tras emparejar una recepcion. Asi los aciertos
+     * simultaneos no dependen del buffer eager ni bloquean MPI_Waitall.
+     */
     if (!notified) {
         MPI_Cancel(&recv_req);
         MPI_Wait(&recv_req, MPI_STATUS_IGNORE);
     }
-    MPI_Barrier(MPI_COMM_WORLD);
-    for (int flag = 1; flag;) {
-        MPI_Iprobe(MPI_ANY_SOURCE, TAG_ENCONTRADA, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
-        if (flag) MPI_Recv(note, 2, MPI_UINT64_T, MPI_ANY_SOURCE, TAG_ENCONTRADA,
-                           MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    for (int all_complete = 0; !all_complete;) {
+        for (int flag = 1; flag;) {
+            MPI_Iprobe(MPI_ANY_SOURCE, TAG_ENCONTRADA, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
+            if (flag) MPI_Recv(note, 2, MPI_UINT64_T, MPI_ANY_SOURCE, TAG_ENCONTRADA,
+                              MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        }
+        int complete = 1;
+        if (nsend) MPI_Testall(nsend, send_req, &complete, MPI_STATUSES_IGNORE);
+        MPI_Allreduce(&complete, &all_complete, 1, MPI_INT, MPI_MIN, MPI_COMM_WORLD);
     }
+    free(send_req);
     MPI_Win_unlock_all(win);
     MPI_Win_free(&win);
 
@@ -215,6 +230,5 @@ int main(int argc, char **argv) {
         if (best != NO_KEY) printf("Familia de la clave: %s\n", FAM_NOMBRE[best_family]);
     }
     EVP_CIPHER_CTX_free(ctx);
-    MPI_Finalize();
-    return best != NO_KEY ? 0 : (any_timeout ? 3 : 2);
+    return mpi_finish(best != NO_KEY ? 0 : (any_timeout ? 3 : 2));
 }

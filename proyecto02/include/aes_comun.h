@@ -1,5 +1,5 @@
 /* Laboratorio 03 - Carlos Daniel Estrada Vega, 20853. Utilidades AES-128 (ECB).
- * Se usa AES-128 en modo ECB con relleno PKCS#7 (sin nonce ni etiqueta GCM).
+ * AES-128-ECB con PKCS#7 y HMAC-SHA256 sobre formato, longitud y cifrado.
  * Las claves numeradas son SOLO un espacio reducido para el experimento.
  */
 #ifndef AES_COMUN_H
@@ -11,13 +11,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <openssl/evp.h>
-#include <openssl/rand.h>
+#include <openssl/hmac.h>
 #define MAX_MESSAGE 4096
 #define NO_KEY UINT64_MAX
-#define MAX_RANGE (UINT64_C(1) << 32)
+#define AUTH_SIZE 32
 typedef struct {
     unsigned char cipher[MAX_MESSAGE + 16];  /* texto cifrado (multiplo de 16 por el relleno) */
     int length;                              /* longitud del texto plano original */
+    unsigned char tag[AUTH_SIZE];            /* autenticacion encrypt-then-MAC */
 } Dataset;
 /* Longitud del texto cifrado: PKCS#7 siempre agrega de 1 a 16 bytes de relleno. */
 static inline int cipher_length(int plain_len) { return (plain_len / 16 + 1) * 16; }
@@ -36,6 +37,34 @@ static inline int parse_number(const char *s, uint64_t *value) {
     *value = (uint64_t)v;
     return 1;
 }
+/* Deriva una clave MAC separada por dominio y autentica la representacion binaria
+ * canonica (version, longitud big endian y cifrado). No guarda el texto ni la clave.
+ */
+static inline int dataset_tag(uint64_t candidate, const Dataset *d, unsigned char tag[AUTH_SIZE]) {
+    unsigned char key[16], mac_key[AUTH_SIZE], payload[8 + MAX_MESSAGE + 16];
+    unsigned int n = 0;
+    static const unsigned char domain[] = "Proyecto02/AESECB2/HMAC-SHA256";
+    make_key(candidate, key);
+    int ok = HMAC(EVP_sha256(), key, sizeof key, domain, sizeof domain - 1, mac_key, &n) != NULL
+        && n == AUTH_SIZE;
+    memcpy(payload, "ECB2", 4);
+    for (int i = 0; i < 4; ++i) payload[7-i] = (unsigned char)((uint32_t)d->length >> (8*i));
+    int clen = cipher_length(d->length);
+    memcpy(payload + 8, d->cipher, (size_t)clen);
+    if (ok) ok = HMAC(EVP_sha256(), mac_key, sizeof mac_key, payload, (size_t)clen + 8, tag, &n) != NULL
+        && n == AUTH_SIZE;
+    OPENSSL_cleanse(key, sizeof key);
+    OPENSSL_cleanse(mac_key, sizeof mac_key);
+    return ok;
+}
+/* 1 autentico; 0 clave/datos incorrectos; -1 error de biblioteca. */
+static inline int verify_dataset(uint64_t candidate, const Dataset *d) {
+    unsigned char expected[AUTH_SIZE];
+    if (!dataset_tag(candidate, d, expected)) return -1;
+    int ok = CRYPTO_memcmp(expected, d->tag, AUTH_SIZE) == 0;
+    OPENSSL_cleanse(expected, sizeof expected);
+    return ok;
+}
 static inline int encrypt_message(EVP_CIPHER_CTX *ctx, uint64_t candidate,
         const unsigned char *message, int length, Dataset *d) {
     unsigned char key[16]; int out = 0, tail = 0;
@@ -44,16 +73,19 @@ static inline int encrypt_message(EVP_CIPHER_CTX *ctx, uint64_t candidate,
     return EVP_EncryptInit_ex(ctx, EVP_aes_128_ecb(), NULL, key, NULL) == 1
         && EVP_EncryptUpdate(ctx, d->cipher, &out, message, length) == 1
         && EVP_EncryptFinal_ex(ctx, d->cipher + out, &tail) == 1
-        && out + tail == cipher_length(length);
+        && out + tail == cipher_length(length)
+        && dataset_tag(candidate, d, d->tag);
 }
 /* Descifra con relleno PKCS#7. Retorna 1 y la longitud del texto plano si el
- * relleno es valido, 0 si la clave es incorrecta (relleno invalido) y -1 ante
+ * autenticacion y relleno son validos, 0 si la clave/datos son incorrectos y -1 ante
  * un error de la biblioteca. Se usa para recuperar el archivo original.
  */
 static inline int decrypt_message(EVP_CIPHER_CTX *ctx, uint64_t candidate,
         const Dataset *d, unsigned char plain[MAX_MESSAGE + 16], int *plain_len) {
     unsigned char key[16]; int out = 0, tail = 0;
     int clen = cipher_length(d->length);
+    int auth = verify_dataset(candidate, d);
+    if (auth != 1) return auth;
     make_key(candidate, key);
     if (EVP_DecryptInit_ex(ctx, EVP_aes_128_ecb(), NULL, key, NULL) != 1
         || EVP_DecryptUpdate(ctx, plain, &out, d->cipher, clen) != 1)
@@ -63,7 +95,7 @@ static inline int decrypt_message(EVP_CIPHER_CTX *ctx, uint64_t candidate,
         return 0;
     }
     *plain_len = out + tail;
-    return 1;
+    return *plain_len == d->length;
 }
 static inline void print_hex(FILE *f, const unsigned char *data, int length) {
     for (int i = 0; i < length; ++i) fprintf(f, "%02x", data[i]);
@@ -82,15 +114,16 @@ static inline int read_hex(FILE *f, unsigned char *data, int length) {
 }
 static inline int save_dataset(const char *path, const Dataset *d) {
     FILE *f = fopen(path, "wb"); if (!f) return 0;
-    fprintf(f, "AESECB1\n%d\n", d->length);
+    fprintf(f, "AESECB2\n%d\n", d->length);
     print_hex(f, d->cipher, cipher_length(d->length));
+    print_hex(f, d->tag, AUTH_SIZE);
     int ok = !ferror(f); if (fclose(f) != 0) ok = 0;
     return ok;
 }
 static inline int load_dataset(const char *path, Dataset *d) {
     FILE *f = fopen(path, "rb"); if (!f) return 0;
     char header[32], length[32]; uint64_t n = 0;
-    int ok = fgets(header, sizeof header, f) && !strcmp(header, "AESECB1\n")
+    int ok = fgets(header, sizeof header, f) && !strcmp(header, "AESECB2\n")
         && fgets(length, sizeof length, f);
     if (ok) {
         size_t l = strlen(length);
@@ -100,7 +133,8 @@ static inline int load_dataset(const char *path, Dataset *d) {
     }
     if (ok) {
         d->length = (int)n;
-        ok = read_hex(f, d->cipher, cipher_length(d->length)) && fgetc(f) == EOF && !ferror(f);
+        ok = read_hex(f, d->cipher, cipher_length(d->length))
+            && read_hex(f, d->tag, AUTH_SIZE) && fgetc(f) == EOF && !ferror(f);
     }
     fclose(f); return ok;
 }

@@ -1,4 +1,4 @@
-carlosestrada@GP01-CDESTRADA:~/Proyecto-2---Paralela$ proyecto02/build/aes_archivo descifrar evidencias/inciso1/mensaje.aes evidencias/inciso1/recuperado.txt 123456
+Proyecto02$ proyecto02/build/aes_archivo descifrar evidencias/inciso1/mensaje.aes evidencias/inciso1/recuperado.txt 123456
 Operacion: descifrar
 Entrada: evidencias/inciso1/mensaje.aes
 Salida: evidencias/inciso1/recuperado.txt
@@ -8,5 +8,5 @@ Texto cifrado (hex): 66b6cff0452c170ac232aad7834eb2b1cb67e802b7ed98314e209a5e07f
 Texto recuperado:
 Esta es una prueba de proyecto 2
 
-carlosestrada@GP01-CDESTRADA:~/Proyecto-2---Paralela$ cat evidencias/inciso1/recuperado.txt
+Proyecto02$ cat evidencias/inciso1/recuperado.txt
 Esta es una prueba de proyecto 2

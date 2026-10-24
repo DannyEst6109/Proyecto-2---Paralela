@@ -1,14 +1,13 @@
-carlosestrada@GP01-CDESTRADA:~/Proyecto-2---Paralela$ cmp proyecto02/datos/mensaje.txt evidencias/inciso1/recuperado.txt && echo 'Archivos identicos'
+Proyecto02$ cmp proyecto02/datos/mensaje.txt evidencias/inciso1/recuperado.txt && echo 'Archivos identicos'
 Archivos identicos
-carlosestrada@GP01-CDESTRADA:~/Proyecto-2---Paralela$ sha256sum proyecto02/datos/mensaje.txt evidencias/inciso1/recuperado.txt
+Proyecto02$ sha256sum proyecto02/datos/mensaje.txt evidencias/inciso1/recuperado.txt
 ee3baca1bef803f13ce5c3a754d3209ac15d2f96d679e00f1d882fed7732d257  proyecto02/datos/mensaje.txt
 ee3baca1bef803f13ce5c3a754d3209ac15d2f96d679e00f1d882fed7732d257  evidencias/inciso1/recuperado.txt
-carlosestrada@GP01-CDESTRADA:~/Proyecto-2---Paralela$ proyecto02/build/aes_archivo descifrar evidencias/inciso1/mensaje.aes evidencias/inciso1/no_crear.txt 123457
+Proyecto02$ proyecto02/build/aes_archivo descifrar evidencias/inciso1/mensaje.aes evidencias/inciso1/no_crear.txt 44
 Clave incorrecta o contenido alterado.
 [codigo de salida: 1]
-carlosestrada@GP01-CDESTRADA:~/Proyecto-2---Paralela$ ls evidencias/inciso1/no_crear.txt
-ls: cannot access 'evidencias/inciso1/no_crear.txt': No such file or directory
-[codigo de salida: 2]
-carlosestrada@GP01-CDESTRADA:~/Proyecto-2---Paralela$ python3 proyecto02/tests/probar_inciso1.py
-PASS: 19 casos del inciso 1; archivos identicos byte a byte,
-limites, errores y rechazo de formatos ajenos (AES-128-ECB).
+Proyecto02$ test ! -e evidencias/inciso1/no_crear.txt && echo 'Clave 44 rechazada; no se genero salida'
+Clave 44 rechazada; no se genero salida
+Proyecto02$ python3 proyecto02/tests/probar_inciso1.py
+PASS: 24 casos del inciso 1; archivos identicos byte a byte,
+limites, autenticacion HMAC, errores y formatos ajenos (AES-128-ECB).

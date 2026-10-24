@@ -23,8 +23,9 @@ static int write_output(const char *path, const Dataset *data,
     FILE *file = fopen(path, "wbx");
     if (!file) { perror(path); return 0; }
     if (encrypting) {
-        fprintf(file, "AESECB1\n%d\n", data->length);
+        fprintf(file, "AESECB2\n%d\n", data->length);
         print_hex(file, data->cipher, cipher_length(data->length));
+        print_hex(file, data->tag, AUTH_SIZE);
     } else {
         if (fwrite(plain, 1, (size_t)data->length, file) != (size_t)data->length) {
             fclose(file);

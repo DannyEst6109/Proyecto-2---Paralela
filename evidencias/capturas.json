@@ -1,0 +1,65 @@
+[
+  {
+    "sesion": "compilacion",
+    "comando": "bash scripts/sesion_evidencia.sh compilacion 5",
+    "codigo": 0,
+    "fecha": "2026-10-27T22:26:33-06:00",
+    "captura": "evidencias/inciso1/01_compilacion.png",
+    "png_sha256": "980057f76831e260ac9be639c3e5b62316e8d15f7d124a80cd1798d2999e2cc8",
+    "txt_sha256": "0f27a81c5205c7cdc8344ec254b095a86c1844e55c4aa0eed54527a6100c3f02"
+  },
+  {
+    "sesion": "cifrado",
+    "comando": "bash scripts/sesion_evidencia.sh cifrado 5",
+    "codigo": 0,
+    "fecha": "2026-10-27T22:26:34-06:00",
+    "captura": "evidencias/inciso1/02_cifrado.png",
+    "png_sha256": "4f010e7bcf6211a5f0fa2b99dffed4c72e8f95c73998e1860cd8edbbc2ba054d",
+    "txt_sha256": "0d30b2ffdee630d6f06b0c56ae2c132ebf4ff908644309614fc624ae93d00df9"
+  },
+  {
+    "sesion": "descifrado",
+    "comando": "bash scripts/sesion_evidencia.sh descifrado 5",
+    "codigo": 0,
+    "fecha": "2026-10-27T22:26:34-06:00",
+    "captura": "evidencias/inciso1/03_descifrado.png",
+    "png_sha256": "32369eb5b959ed37cbdac9365ce946ce72f8147032475b1abebaf77f9903d73e",
+    "txt_sha256": "58a4b7269cb5aa54486accb5c928eefb655b8023c8fc715cc1a662ee93142854"
+  },
+  {
+    "sesion": "verificacion",
+    "comando": "bash scripts/sesion_evidencia.sh verificacion 5",
+    "codigo": 0,
+    "fecha": "2026-10-27T22:26:35-06:00",
+    "captura": "evidencias/inciso1/04_verificacion.png",
+    "png_sha256": "b1332bc45917438c39119302caa0c86709497925173b2899c2f0fc4335d5c6c4",
+    "txt_sha256": "ffb9917ede6983a819f6abe52abfb0d6989901a6aa8dfb3d830b3e27ed8047d3"
+  },
+  {
+    "sesion": "clave_a",
+    "comando": "bash scripts/sesion_evidencia.sh clave_a 5",
+    "codigo": 0,
+    "fecha": "2026-10-27T22:26:37-06:00",
+    "captura": "evidencias/inciso2/01_clave_a.png",
+    "png_sha256": "070ef0777bd144d069e3c8fbede94e593b4b285f4c71c09c48a53b9c3842ed33",
+    "txt_sha256": "35b8f4f33b34ce796204d4735f465ec2137f690f2b190e1a99bcb0138fbe8306"
+  },
+  {
+    "sesion": "clave_b",
+    "comando": "bash scripts/sesion_evidencia.sh clave_b 5",
+    "codigo": 0,
+    "fecha": "2026-10-27T22:26:48-06:00",
+    "captura": "evidencias/inciso2/02_clave_b.png",
+    "png_sha256": "f6972bfe71c7c8480dd6ca69d21874e8ea98c3ab76bab8e360d7036f6718b07a",
+    "txt_sha256": "ab1553b04836c46e807896ca5d1417cc1ae9be0eec6fa826ec91aa7eb71616f0"
+  },
+  {
+    "sesion": "clave_c",
+    "comando": "bash scripts/sesion_evidencia.sh clave_c 5",
+    "codigo": 0,
+    "fecha": "2026-10-27T22:27:00-06:00",
+    "captura": "evidencias/inciso2/03_clave_c.png",
+    "png_sha256": "68e0338b670fb0d48469ab5c2d93bcd2229c7c55d7555a93fcd5d689cf7c6c54",
+    "txt_sha256": "cfa0307e1802b29309e0b630284fdf6d1c1b85274a6044c283b3ed4943b1ee4f"
+  }
+]

@@ -15,7 +15,7 @@ int main(int argc, char **argv) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank); MPI_Comm_size(MPI_COMM_WORLD, &size);
     Params p; Dataset d = {0};
     init_params(&p, UINT64_C(1) << 32, 65536, 0);
-    if (!mpi_setup(argc, argv, USO, &p, &d)) { MPI_Finalize(); return 1; }
+    if (!mpi_setup(argc, argv, USO, &p, &d)) return mpi_finish(1);
     EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
     if (!ctx) mpi_fail("No se pudo crear el contexto AES.");
     unsigned char plain[MAX_MESSAGE + 16];
@@ -27,11 +27,12 @@ int main(int argc, char **argv) {
     int timed_out = 0;
     MPI_Barrier(MPI_COMM_WORLD);
     double start = MPI_Wtime();
-    for (uint64_t base = p.offset; base < hi && !timed_out; base += stride) {
+    for (uint64_t base = p.offset; base < hi && !timed_out;) {
         uint64_t local = NO_KEY;
-        uint64_t first = base + (uint64_t)rank * p.batch;
-        uint64_t end = first + p.batch; if (end > hi || end < first) end = hi;
-        if (first >= hi) first = hi;
+        uint64_t relative = (uint64_t)rank * p.batch;
+        uint64_t first = relative < hi - base ? base + relative : hi;
+        uint64_t count = hi - first < p.batch ? hi - first : p.batch;
+        uint64_t end = first + count;
         for (uint64_t k = first; k < end; ++k) {
             int result = try_phrase(ctx, k, &d, plain, p.phrase, plen); ++attempts;
             if (result < 0) mpi_fail("Error de API AES.");
@@ -42,7 +43,8 @@ int main(int argc, char **argv) {
         if (found != NO_KEY) break;
         int expired = p.max_seconds && MPI_Wtime() - start >= (double)p.max_seconds;
         MPI_Allreduce(&expired, &timed_out, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
-        if (base > UINT64_MAX - stride) break;   /* evita el desbordamiento del avance */
+        if (stride >= hi - base) break;
+        base += stride;
     }
     double local_time = MPI_Wtime() - start, elapsed = 0;
     MPI_Reduce(&local_time, &elapsed, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
@@ -50,6 +52,5 @@ int main(int argc, char **argv) {
     if (rank == 0)
         print_report("base (lotes estaticos, Open MPI)", size, found, total, elapsed, timed_out, ctx, &d, &p);
     EVP_CIPHER_CTX_free(ctx);
-    MPI_Finalize();
-    return found != NO_KEY ? 0 : (timed_out ? 3 : 2);
+    return mpi_finish(found != NO_KEY ? 0 : (timed_out ? 3 : 2));
 }

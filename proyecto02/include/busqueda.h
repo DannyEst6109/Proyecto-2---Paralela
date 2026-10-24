@@ -17,11 +17,13 @@ typedef struct {
     uint64_t batch;        /* claves por lote o por bloque de trabajo */
     uint64_t offset;       /* alternativa: inicio del barrido de respaldo */
     uint64_t max_seconds;  /* 0 = sin limite de tiempo */
+    int exhaustive_only;  /* alternativa: -e desactiva las familias heuristicas */
     char phrase[FRASE_MAX + 1];
 } Params;
 
 static inline void init_params(Params *p, uint64_t limit, uint64_t batch, uint64_t offset) {
     p->limit = limit; p->batch = batch; p->offset = offset; p->max_seconds = 0;
+    p->exhaustive_only = 0;
     snprintf(p->phrase, sizeof p->phrase, "%s", FRASE_DEFECTO);
 }
 
@@ -31,20 +33,21 @@ static inline void init_params(Params *p, uint64_t limit, uint64_t batch, uint64
 static inline int parse_params(int argc, char **argv, Params *p, const char **file) {
     int opt, ok = 1;
     optind = 1; opterr = 0;
-    while ((opt = getopt(argc, argv, "f:l:b:o:t:")) != -1) {
+    while ((opt = getopt(argc, argv, "ef:l:b:o:t:")) != -1) {
         switch (opt) {
+        case 'e': p->exhaustive_only = 1; break;
         case 'f':
             if (!*optarg || strlen(optarg) > FRASE_MAX) ok = 0;
             else snprintf(p->phrase, sizeof p->phrase, "%s", optarg);
             break;
         case 'l': ok = ok && parse_number(optarg, &p->limit) && p->limit > 0 && p->limit <= LIMITE_MAX; break;
         case 'b': ok = ok && parse_number(optarg, &p->batch) && p->batch > 0 && p->batch <= (UINT64_C(1) << 32); break;
-        case 'o': ok = ok && parse_number(optarg, &p->offset) && p->offset <= LIMITE_MAX; break;
+        case 'o': ok = ok && parse_number(optarg, &p->offset); break;
         case 't': ok = ok && parse_number(optarg, &p->max_seconds); break;
         default: ok = 0;
         }
     }
-    if (!ok || optind != argc - 1) return 0;
+    if (!ok || optind != argc - 1 || p->offset > UINT64_MAX - p->limit) return 0;
     *file = argv[optind];
     return 1;
 }
@@ -57,7 +60,8 @@ static inline int contains_phrase(const unsigned char *text, int length, const c
 }
 
 /* Descifra con la candidata y busca la frase. La unica comprobacion es la frase,
- * como pide el enunciado. Se desactiva el relleno PKCS#7 para descifrar bloques
+ * como pide el enunciado. Un acierto se confirma con HMAC para evitar falsos positivos.
+ * Se desactiva el relleno PKCS#7 para descifrar bloques
  * en bruto: asi una clave incorrecta no provoca un error de relleno, solo texto
  * basura donde la frase no aparece. Retorna 1 si la contiene, 0 si no y -1 ante
  * un error de la API.
@@ -70,7 +74,8 @@ static inline int try_phrase(EVP_CIPHER_CTX *ctx, uint64_t candidate, const Data
         || EVP_CIPHER_CTX_set_padding(ctx, 0) != 1
         || EVP_DecryptUpdate(ctx, plain, &out, d->cipher, cipher_length(d->length)) != 1)
         return -1;
-    return contains_phrase(plain, out, phrase, plen);
+    if (!contains_phrase(plain, d->length, phrase, plen)) return 0;
+    return verify_dataset(candidate, d);
 }
 
 /* La frase debe poder aparecer en el mensaje cifrado cargado. */

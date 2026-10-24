@@ -1,0 +1,10 @@
+{
+  "inputs": {
+    "evidencias/inciso2/resultados.json": "819ee082f7190063f211ee23479192d4ec4fa15f3282814782a8a04818163da5",
+    "evidencias/capturas.json": "eaa1b0fb1a1a1b407e4881697d3d8df7ae1db8a3dd574e861cea7424386719b3",
+    "evidencias/pruebas/ultima_prueba.txt": "3afb9b37c59b0ee06bb624d666387c4dbaed1cc8b29e027b245910032d21fb04",
+    "informe/crear_informe.py": "9443a1f663cf21908c8a8015e610316e89b295c6baafe85b610a86941194f511"
+  },
+  "pdf_sha256": "f002aeffbfa46b5aeef9a2776e6777b20beb91c7093567dca2f94cca92b26bdd",
+  "paginas": 28
+}

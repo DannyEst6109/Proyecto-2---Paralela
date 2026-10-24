@@ -5,16 +5,19 @@ import re
 import shutil
 import subprocess
 import tempfile
+import sys
 
 PROJECT = Path(__file__).resolve().parents[1]
 BUILD = PROJECT / "build"
 TEXT = b"Esta es una prueba de proyecto 2"
 KEY_BIG = 2**56 // 4
-MPIRUN = ["mpirun", "--oversubscribe", "-np", "4"] if shutil.which("mpirun") else None
+sys.path.insert(0, str(PROJECT.parent / 'scripts'))
+from mpi_utils import mpi_prefix, run_command
+MPIRUN = mpi_prefix() if shutil.which('mpirun') else None
 
 
 def run(args, ok=(0,)):
-    result = subprocess.run([str(a) for a in args], capture_output=True, text=True, timeout=300)
+    result = run_command(args, timeout=90)
     assert result.returncode in ok, (args, result.returncode, result.stdout, result.stderr)
     return result
 
@@ -37,7 +40,7 @@ def main():
     if MPIRUN:
         programs += [MPIRUN + [BUILD / "busqueda_base"], MPIRUN + [BUILD / "busqueda_alternativa"]]
     else:
-        print("AVISO: mpirun no esta instalado; se omiten las pruebas MPI.")
+        raise SystemExit('Falta mpirun: la verificacion completa requiere Open MPI.')
     with tempfile.TemporaryDirectory(prefix="proyecto02-busqueda-") as folder:
         root = Path(folder)
         # Claves bajas: las tres versiones deben hallar exactamente la misma clave.
@@ -87,8 +90,26 @@ def main():
         cipher = encrypt(root, "frase", 321, b"hola mundo secreto")
         for program in programs:
             assert found_key(run(program + ["-f", "mundo", cipher]).stdout) == 321
-            run(program + ["-f", "ausente", "-l", 1000, cipher], ok=(2,))
+            extra = ['-e', '-o', 0] if program[-1].name == 'busqueda_alternativa' else []
+            run(program + extra + ["-f", "ausente", "-l", 1000, cipher], ok=(2,))
             count += 2
+        # Mismo intervalo, frase corta (HMAC evita falsos positivos) y extremo uint64.
+        for key, offset, limit in ((321, 0, 1000), (2**64-2, 2**64-5, 4)):
+            cipher = encrypt(root, f'borde{key}', key, b'x es una prueba de')
+            for program in programs:
+                extra = ['-e'] if program[-1].name == 'busqueda_alternativa' else []
+                result = run(program + extra + ['-o', offset, '-l', limit, '-b', 7, '-f', 'x', cipher])
+                assert found_key(result.stdout) == key
+                count += 1
+        # La alternativa debe devolver 3 en todos los ranks cuando vence el tiempo.
+        cipher = encrypt(root, 'tiempo_alt', KEY_BIG)
+        run(programs[2] + ['-e', '-o', 0, '-l', 2**56, '-t', 1, cipher], ok=(3,))
+        count += 1
+        # Aciertos simultaneos: 0 aparece en bajos y patrones; no debe bloquearse.
+        cipher = encrypt(root, 'simultaneo', 0)
+        for _ in range(4):
+            assert found_key(run(programs[2] + ['-b', 1, cipher]).stdout) == 0
+            count += 1
         # Entradas invalidas: no deben bloquearse ni fallar con senales.
         bad = root / "malo.aes"
         bad.write_text("AESECB1\n5\nzz\n")
@@ -96,7 +117,8 @@ def main():
         for program in programs:
             for args in ([root / "no_existe.aes"], [bad], ["-l", 0, cipher], ["-l", "abc", cipher],
                          ["-b", 0, cipher], ["-f", "", cipher], ["-f", "x" * 65, cipher],
-                         ["-f", "esta frase es mas larga que el mensaje del archivo ok.", cipher], []):
+                         ["-f", "esta frase es mas larga que el mensaje del archivo ok.", cipher],
+                         ['-o', 2**64-2, '-l', 4, cipher], []):
                 run(program + args, ok=(1,))
                 count += 1
     print(f"Pruebas de busqueda (incisos 2 y 3): {count} casos correctos")

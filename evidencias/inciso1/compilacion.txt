@@ -1,10 +1,11 @@
-carlosestrada@GP01-CDESTRADA:~/Proyecto-2---Paralela$ date '+%Y-%m-%d %H:%M:%S %Z' && uname -sr
-2026-10-23 14:07:12 CST
+Proyecto02$ date '+%Y-%m-%d %H:%M:%S %Z' && uname -sr
+2026-10-27 22:26:28 CST
 Linux 6.18.33.2-microsoft-standard-WSL2
-carlosestrada@GP01-CDESTRADA:~/Proyecto-2---Paralela$ gcc --version | head -1 && mpirun --version 2>/dev/null | head -1 && openssl version
+Proyecto02$ gcc --version | head -1 && mpirun --version | head -1 && openssl version
 gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0
+mpirun (Open MPI) 5.0.10
 OpenSSL 3.5.5 27 Jan 2026 (Library: OpenSSL 3.5.5 27 Jan 2026)
-carlosestrada@GP01-CDESTRADA:~/Proyecto-2---Paralela$ make clean >/dev/null && make && make laboratorio | grep -E 'gcc|mpicc'
+Proyecto02$ make clean >/dev/null && make && make laboratorio | grep -E 'gcc|mpicc'
 make -C proyecto02
 make[1]: Entering directory '/mnt/c/Users/carlos.estrada/Documents/U/Proyecto-2---Paralela/proyecto02'
 mkdir -p build
@@ -16,7 +17,7 @@ make[1]: Leaving directory '/mnt/c/Users/carlos.estrada/Documents/U/Proyecto-2--
 gcc -std=c11 -O2 -Wall -Wextra -Wpedantic busqueda_clave_aes_secuencial.c -o busqueda_clave_aes_secuencial -lcrypto
 gcc -std=c11 -O2 -Wall -Wextra -Wpedantic busqueda_clave_aes_mejorada.c -o busqueda_clave_aes_mejorada -lcrypto
 mpicc -std=c11 -O2 -Wall -Wextra -Wpedantic busqueda_clave_aes_mpi.c -o busqueda_clave_aes_mpi -lcrypto
-carlosestrada@GP01-CDESTRADA:~/Proyecto-2---Paralela$ ls proyecto02/build
+Proyecto02$ ls proyecto02/build
 aes_archivo
 busqueda_alternativa
 busqueda_base

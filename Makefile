@@ -9,9 +9,12 @@ laboratorio:
 test: all laboratorio
 	$(CC) -std=c11 -O2 -Wall -Wextra -Wpedantic laboratorio03/programas/test_aes.c -o laboratorio03/programas/test_aes -lcrypto
 	./laboratorio03/programas/test_aes
+	$(CC) -std=c11 -O2 -Wall -Wextra -Wpedantic -Iproyecto02/include proyecto02/tests/test_aes.c -o proyecto02/build/test_aes -lcrypto
+	./proyecto02/build/test_aes
 	python3 proyecto02/tests/probar_inciso1.py
 	python3 proyecto02/tests/probar_busqueda.py
 
 clean:
 	$(MAKE) -C proyecto02 clean
 	$(MAKE) -C laboratorio03/programas clean
+	rm -f laboratorio03/programas/test_aes
