@@ -10,6 +10,12 @@ Integrantes: Daniel Estrada (20853), Andre Pivaral (23574) y Sebastian Estrada (
 - Mediciones crudas, metadatos y control: `evidencias/inciso2/resultados.json`.
 - ZIP: `entregas/Entrega_Proyecto_02.zip`, con manifiesto SHA-256 interno.
 
+El proyecto está implementado y verificado. El informe revisado tiene 20 páginas y
+conserva los apartados de la rúbrica, el catálogo de funciones y las siete capturas.
+La base fue más rápida en la clave 123456 y en el control sin familias. La alternativa
+recuperó las claves grandes al priorizar sus patrones; los recorridos exhaustivos
+de esos casos se interrumpieron por tiempo y sus proyecciones se presentan aparte.
+
 ## Compilar y verificar
 
 En Ubuntu o WSL, desde la raíz de una extracción nueva:
@@ -146,7 +152,8 @@ Una sesión de texto: `bash scripts/sesion_evidencia.sh clave_b 5`.
 
 ## Informe y paquete
 
-El generador necesita Python 3, ReportLab, Pillow y Arial o DejaVu Sans/Mono. Para regenerar:
+El generador necesita Python 3, ReportLab, Pillow y Times New Roman/Consolas o
+DejaVu Serif/Mono. Para regenerar:
 
 ```bash
 python3 -m venv .venv-informe

@@ -2,6 +2,8 @@
 
 Ejecutar con Python 3 y ReportLab: python informe/crear_informe.py
 No ejecuta ni modifica las mediciones del proyecto.
+Diseño académico basado en los informes de referencia proporcionados por el usuario:
+Times New Roman, carátula centrada, integrantes en texto y tablas sin rellenos.
 """
 from pathlib import Path
 from statistics import median
@@ -24,42 +26,46 @@ OUT = ROOT / 'informe/Informe_Proyecto_02.pdf'
 OUT.parent.mkdir(parents=True, exist_ok=True)
 FONT_DIRS = [Path('C:/Windows/Fonts'), Path('/usr/share/fonts/truetype/dejavu')]
 for folder in FONT_DIRS:
-    normal = folder / ('arial.ttf' if folder.name == 'Fonts' else 'DejaVuSans.ttf')
-    bold = folder / ('arialbd.ttf' if folder.name == 'Fonts' else 'DejaVuSans-Bold.ttf')
+    normal = folder / ('times.ttf' if folder.name == 'Fonts' else 'DejaVuSerif.ttf')
+    bold = folder / ('timesbd.ttf' if folder.name == 'Fonts' else 'DejaVuSerif-Bold.ttf')
+    italic = folder / ('timesi.ttf' if folder.name == 'Fonts' else 'DejaVuSerif-Italic.ttf')
     mono = folder / ('consola.ttf' if folder.name == 'Fonts' else 'DejaVuSansMono.ttf')
     if normal.exists():
         pdfmetrics.registerFont(TTFont('Body', str(normal)))
         pdfmetrics.registerFont(TTFont('BodyBold', str(bold)))
+        pdfmetrics.registerFont(TTFont('BodyItalic', str(italic)))
         pdfmetrics.registerFont(TTFont('Code', str(mono)))
         break
 else:
-    raise RuntimeError('Se requieren Arial/Consolas o DejaVu Sans/Mono.')
-pdfmetrics.registerFontFamily('Body', normal='Body', bold='BodyBold', italic='Body', boldItalic='BodyBold')
-GREEN = colors.HexColor('#006B54')
-INK = colors.HexColor('#192D35')
-PALE = colors.HexColor('#EDF4F1')
-GRAY = colors.HexColor('#55646B')
+    raise RuntimeError('Se requieren Times New Roman/Consolas o DejaVu Serif/Mono.')
+pdfmetrics.registerFontFamily('Body', normal='Body', bold='BodyBold', italic='BodyItalic', boldItalic='BodyBold')
+GREEN = colors.black
+INK = colors.black
+PALE = colors.white
+GRAY = colors.HexColor('#333333')
 WIDTH = 468
 ST = {
-    'body': ParagraphStyle('body', fontName='Body', fontSize=10, leading=15,
+    'body': ParagraphStyle('body', fontName='Body', fontSize=12, leading=15.2,
                            textColor=INK, alignment=TA_JUSTIFY, spaceAfter=9),
-    'small': ParagraphStyle('small', fontName='Body', fontSize=8, leading=11,
+    'small': ParagraphStyle('small', fontName='Body', fontSize=10, leading=12,
                             textColor=INK, spaceAfter=6),
-    'cell': ParagraphStyle('cell', fontName='Body', fontSize=8, leading=10.6, textColor=INK),
-    'headcell': ParagraphStyle('headcell', fontName='BodyBold', fontSize=8,
-                               leading=10.5, textColor=colors.white),
-    'h1': ParagraphStyle('h1', fontName='BodyBold', fontSize=18, leading=23,
-                         textColor=GREEN, spaceAfter=16),
-    'h2': ParagraphStyle('h2', fontName='BodyBold', fontSize=11, leading=15,
+    'cell': ParagraphStyle('cell', fontName='Body', fontSize=9.5, leading=11.2, textColor=INK),
+    'headcell': ParagraphStyle('headcell', fontName='BodyBold', fontSize=9.5,
+                               leading=11.2, textColor=INK),
+    'h1': ParagraphStyle('h1', fontName='BodyBold', fontSize=14, leading=18,
+                         textColor=GREEN, spaceAfter=12),
+    'h2': ParagraphStyle('h2', fontName='BodyBold', fontSize=12, leading=15,
                          textColor=GREEN, spaceBefore=9, spaceAfter=7),
-    'caption': ParagraphStyle('caption', fontName='Body', fontSize=8, leading=11,
-                              textColor=GRAY, spaceBefore=5, spaceAfter=10),
-    'code': ParagraphStyle('code', fontName='Code', fontSize=7.5, leading=10.5,
+    'caption': ParagraphStyle('caption', fontName='BodyItalic', fontSize=9, leading=10.5,
+                              textColor=GRAY, spaceBefore=4, spaceAfter=6),
+    'code': ParagraphStyle('code', fontName='Code', fontSize=7.5, leading=10,
                            textColor=INK, backColor=PALE, borderPadding=8, spaceAfter=10),
-    'cover': ParagraphStyle('cover', fontName='Times-Roman', fontSize=13, leading=20,
-                            alignment=TA_CENTER, textColor=INK, spaceAfter=10),
-    'title': ParagraphStyle('title', fontName='Times-Bold', fontSize=23, leading=30,
-                            alignment=TA_CENTER, textColor=INK, spaceAfter=12),
+    'cover': ParagraphStyle('cover', fontName='Body', fontSize=12, leading=17,
+                            alignment=TA_CENTER, textColor=INK, spaceAfter=3),
+    'subtitle': ParagraphStyle('subtitle', fontName='Body', fontSize=12, leading=17,
+                               alignment=TA_CENTER, textColor=INK, spaceAfter=4),
+    'title': ParagraphStyle('title', fontName='BodyBold', fontSize=15, leading=20,
+                            alignment=TA_CENTER, textColor=INK, spaceAfter=6),
 }
 story = []
 pages = []
@@ -78,19 +84,21 @@ def page(title, label=None):
         add(title, 'h1')
 
 def table(headers, rows, widths=None):
+    if widths is not None and abs(sum(widths)-WIDTH) > .01:
+        raise ValueError('La tabla excede el ancho de composición')
     data = [[p(escape(str(x)), 'headcell') for x in headers]]
     data += [[p(escape(str(x)), 'cell') for x in row] for row in rows]
     t = Table(data, colWidths=widths, repeatRows=1, hAlign='LEFT')
     t.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), GREEN),
-        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, PALE]),
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
         ('LEFTPADDING', (0, 0), (-1, -1), 7),
         ('RIGHTPADDING', (0, 0), (-1, -1), 7),
-        ('TOPPADDING', (0, 0), (-1, -1), 7),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 7),
-        ('LINEBELOW', (0, 0), (-1, 0), .7, GREEN),
-        ('LINEBELOW', (0, 1), (-1, -1), .3, colors.HexColor('#DCE4E0')),
+        ('TOPPADDING', (0, 0), (-1, -1), 5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+        ('LINEABOVE', (0, 0), (-1, 0), .7, INK),
+        ('LINEBELOW', (0, 0), (-1, 0), .5, INK),
+        ('LINEBELOW', (0, 1), (-1, -1), .2, colors.HexColor('#AAAAAA')),
+        ('LINEBELOW', (0, -1), (-1, -1), .7, INK),
     ]))
     story.append(t)
     story.append(Spacer(1, 8))
@@ -107,7 +115,7 @@ def shot(relative, height=390):
     story.append(Image(str(path), w * scale, h * scale, hAlign='CENTER'))
 
 def box(d, x, y, w, h, text, fill=PALE, size=8):
-    d.add(Rect(x, y, w, h, rx=4, fillColor=fill, strokeColor=GREEN, strokeWidth=.7))
+    d.add(Rect(x, y, w, h, fillColor=fill, strokeColor=INK, strokeWidth=.6))
     ls = text.split('\n')
     for i, line in enumerate(ls):
         d.add(String(x+w/2, y+h/2+(len(ls)-1)*5-i*10-3, line,
@@ -158,390 +166,229 @@ def med(tag, mode, field='time'):
 
 keys = {'a':123456, 'b':2**54, 'c':2**54+1}
 
+validation=json.loads((ROOT/'evidencias/pruebas/resultado_final.json').read_text(encoding='utf-8'))
+assert validation['codigo']==0, 'La última suite debe aprobar'
+for source_set in (metadata['fuentes_sha256'], validation['fuentes_sha256']):
+    for name,digest in source_set.items():
+        assert hashlib.sha256((ROOT/name).read_bytes()).hexdigest()==digest, f'Fuentes sin evidencia vigente: {name}'
+
 page('', 'Carátula')
-story.append(Spacer(1, 12))
-for line in ['UNIVERSIDAD DEL VALLE DE GUATEMALA', 'Facultad de Ingeniería',
-             'Departamento de Ciencias de la Computación', 'CC3069 - Computación Paralela y Distribuida']:
+story.append(Spacer(1, 18))
+add('<b>Universidad del Valle de Guatemala</b>', 'cover')
+for line in ['Facultad de Ingeniería',
+             'Computación Paralela y Distribuida - Semestre 2, 2026']:
     add(line, 'cover')
-story.append(Spacer(1, 20))
-shot('informe/recursos/escudo_uvg.png', 135)
-story.append(Spacer(1, 28))
+story.append(Spacer(1, 44))
+shot('informe/recursos/escudo_uvg.png', 145)
+story.append(Spacer(1, 46))
 add('Proyecto 02', 'title')
-add('Búsqueda de claves AES-128 con Open MPI:<br/>distribución estática y estrategia por familias', 'cover')
-story.append(Spacer(1, 35))
+add('Búsqueda de claves AES-128 con Open MPI', 'subtitle')
+add('Distribución estática y búsqueda por familias', 'cover')
+story.append(Spacer(1, 42))
+add('<b>Integrantes:</b>', 'cover')
 for line in ['Daniel Estrada - 20853', 'Andre Pivaral - 23574', 'Sebastian Estrada - 21405']:
     add(line, 'cover')
-story.append(Spacer(1, 30))
-add('Guatemala, 27 de octubre de 2026<br/>Ciclo 2 de 2026', 'cover')
+story.append(Spacer(1, 42))
+add('Guatemala, 28 de octubre de 2026', 'cover')
 
 page('Índice')
 index_position = len(story)
 story.append(Spacer(1, 1))
-add('Criterio de lectura', 'h2')
-add('Las mediciones proceden de las evidencias conservadas en el repositorio. Los valores '
-    'proyectados se identifican como estimaciones; no representan búsquedas completadas. '
-    'Las limitaciones y hallazgos de validación se exponen en la discusión y en los anexos.')
+add('Resumen', 'h2')
+add('Se implementaron el cifrado y descifrado de archivos, una búsqueda secuencial y dos '
+    'versiones MPI. La base redujo el tiempo frente a la secuencial en las búsquedas '
+    'completadas. La alternativa encontró las claves grandes al priorizar potencias '
+    'de dos y sus vecinos, pero fue más lenta en la clave pequeña y en el control sin familias.')
+add('El informe reúne los resultados de 60 ejecuciones, las pruebas funcionales y las siete '
+    'capturas de evidencia. Los recorridos exhaustivos de las claves grandes terminaron '
+    'por límite de tiempo; sus estimaciones se presentan aparte.')
 
-page('1. Introducción y objetivos')
-add('La búsqueda de una clave por fuerza bruta constituye un problema adecuado para estudiar '
-    'computación paralela: cada candidata puede probarse de forma independiente, pero el orden '
-    'del recorrido y la comunicación necesaria para detener el trabajo afectan el tiempo de respuesta. '
-    'Este proyecto adapta los programas del Laboratorio 03 para cifrar archivos de texto con AES-128 '
-    'y comparar dos estrategias de búsqueda mediante cuatro procesos MPI.')
-add('La estrategia base distribuye lotes consecutivos y sincroniza los resultados al final de cada ronda. '
-    'La alternativa combina familias de candidatas con asignación dinámica y notificación no bloqueante. '
-    'El estudio utiliza el mensaje y las tres claves establecidos en el enunciado [7].')
-add('Objetivo general', 'h2')
-add('Implementar y evaluar estrategias de distribución del trabajo con Open MPI para reducir el tiempo '
-    'de búsqueda de claves numéricas utilizadas en un cifrado AES-128.')
-add('Objetivos específicos', 'h2')
-for t in [
-    '1. Cargar un archivo .txt, cifrarlo con una clave de entrada y recuperar sus bytes originales con la misma clave.',
-    '2. Implementar una referencia secuencial y una búsqueda paralela base que reconozcan la frase «es una prueba de».',
-    '3. Comparar las claves 123456, 18014398509481984 y 18014398509481985 con cuatro procesos en las ejecuciones MPI.',
-    '4. Explicar el reparto, la búsqueda y la comunicación de una estrategia alternativa mediante diagramas y pseudocódigo.',
-    '5. Analizar tiempos, speedups, costos de coordinación y límites de las mediciones, con evidencia verificable.'
-]: add(t)
-add('Alcance', 'h2')
-add('El cifrado usa claves AES de 16 bytes construidas desde enteros de hasta 64 bits. Se estudia un '
-    'subconjunto de claves, no todo el espacio de 2^128 posibilidades. Los mensajes admitidos miden '
-    'hasta 4096 bytes. Las ejecuciones registradas se realizaron en WSL; no constituyen una evaluación '
-    'de escalabilidad en un clúster de varias máquinas.')
+page('1. Introducción y fundamentos')
+add('El proyecto estudia cómo el reparto de trabajo y el orden de búsqueda afectan el tiempo '
+    'necesario para recuperar una clave AES-128. Parte del Laboratorio 03 y cumple las '
+    'actividades del enunciado: procesar archivos, probar tres claves con cuatro procesos '
+    'MPI y comparar una estrategia base con una alternativa [7].')
+add('Objetivo y alcance', 'h2')
+add('Implementar y evaluar una búsqueda paralela que identifique la clave mediante la frase '
+    '«es una prueba de». Se comparan tiempo, intentos y speedup frente a una referencia '
+    'secuencial. El experimento usa enteros de hasta 64 bits convertidos en claves de '
+    '16 bytes; estudia ese subconjunto, sin recorrer las 2^128 claves de AES-128.')
+add('Conceptos necesarios', 'h2')
+table(['Concepto', 'Aplicación en el proyecto'], [
+    ('AES-128', 'Cifrador simétrico con bloques y clave de 128 bits [1]. Los ocho bytes iniciales de la clave se dejan en cero; los últimos ocho contienen el entero en big endian.'),
+    ('ECB y PKCS#7', 'ECB procesa cada bloque por separado [2]. El relleno completa el último bloque y añade un bloque si la longitud ya es múltiplo de 16 [3].'),
+    ('Búsqueda por fuerza bruta', 'Cada candidata descifra el mensaje y se busca la frase requerida. Un acierto se confirma con HMAC-SHA256 para descartar falsos positivos.'),
+    ('Open MPI', 'Cada proceso prueba candidatas con su propia memoria. La base comparte resultados por ronda; la alternativa solicita bloques y envía avisos de hallazgo [4-6].'),
+], [108,360])
+add('NIST precisa: <i>«Each of them transforms data in blocks of 128 bits»</i>.<super>1</super> '
+    'La longitud del bloque se mantiene aunque las claves del experimento procedan de enteros.', 'small')
+add('Cómo se mide la mejora', 'h2')
+code('S = T_secuencial / T_MPI       E = S / 4\nR = intentos / tiempo          G = T_base / T_alternativa')
+add('S es el speedup y E la eficiencia con cuatro procesos. G compara las dos estrategias: '
+    'un valor mayor que uno favorece a la alternativa. Cambiar el orden de candidatas '
+    'también cambia el trabajo hasta el hallazgo; por eso G no mide solo paralelismo.', 'small')
 
-page('2. Antecedentes conceptuales')
-add('AES-128 y representación de la clave', 'h2')
-add('AES es un cifrador simétrico por bloques. FIPS 197 define bloques de 128 bits y variantes '
-    'con claves de 128, 192 y 256 bits [1]. En este proyecto, <b>make_key</b> inicializa 16 bytes en cero '
-    'y coloca el entero candidato en los últimos ocho, en orden big endian. Por ejemplo, 123456 '
-    'se representa como <font face="Code">0000000000000000000000000001e240</font>. '
-    'El arreglo cumple la longitud de AES-128, aunque la selección de claves tiene menos entropía. '
-    'NIST indica: <i>«Each of them transforms data in blocks of 128 bits»</i>.<super>1</super>')
-add('Modo ECB y relleno', 'h2')
-add('El modo ECB cifra cada bloque por separado [2]. La implementación usa la interfaz EVP de '
-    'OpenSSL y relleno PKCS#7: se añaden entre 1 y 16 bytes para completar el bloque, incluso '
-    'cuando la longitud original ya es múltiplo de 16 [3]. El formato AESECB2 añade HMAC-SHA256 '
-    'sobre versión, longitud y cifrado, con clave MAC derivada mediante un dominio distinto [8]. ')
-add('Fuerza bruta y validación por frase', 'h2')
-add('Una búsqueda exhaustiva enumera candidatas, descifra el mensaje y aplica un criterio de aceptación. '
-    'Aquí se busca la secuencia «es una prueba de» en el resultado, como exige el enunciado. '
-    'Durante la búsqueda se desactiva la comprobación de relleno y se evalúa la frase sobre '
-    'el texto original declarado. Solo si aparece se verifica el HMAC; así se conserva el criterio '
-    'del enunciado sin aceptar falsos positivos de frases cortas.')
-add('MPI y coordinación del trabajo', 'h2')
-add('Cada proceso conserva su propio contexto AES y su copia del cifrado. La base usa una reducción '
-    'colectiva para compartir el hallazgo: <b>MPI_Allreduce</b> combina valores y entrega el resultado '
-    'a todos [4]. La alternativa obtiene bloques mediante una operación atómica sobre una ventana '
-    'remota [5], y utiliza envíos no bloqueantes para avisar un acierto [6].')
-add('Tiempo, speedup y eficiencia', 'h2')
-code('R = claves probadas / tiempo de búsqueda\nS_base = T_secuencial / T_base\nE_base = S_base / 4\nG_alt/base = T_base / T_alternativa')
-add('S compara la referencia secuencial con la base. G compara estrategias con distinto orden de '
-    'candidatas; debe interpretarse como una razón de tiempos. Cuando interviene una proyección, '
-    'la razón también es estimada.', 'small')
-
-page('3. Diseño e implementación')
-add('Organización del proyecto', 'h2')
-table(['Componente', 'Responsabilidad'], [
-    ('laboratorio03/', 'Conserva los programas originales AES-128-GCM usados como punto de partida.'),
-    ('proyecto02/src/', 'aes_archivo; búsqueda secuencial; base MPI; alternativa MPI.'),
-    ('proyecto02/include/', 'AES y formato de archivo; argumentos y frase; preparación común de MPI.'),
-    ('proyecto02/tests/', 'Pruebas de archivos, búsquedas y generación de la bitácora de tiempos.'),
-    ('evidencias/', 'Capturas originales, comandos, salidas, archivos cifrados y tablas de resultados.'),
-], [110, 358])
-add('Entrada, salida y formato', 'h2')
-add('El programa <b>aes_archivo</b> recibe operación, archivo de entrada, archivo de salida y clave '
-    'decimal. La salida se abre en modo exclusivo para evitar sobrescribir archivos existentes. '
-    'El contenedor de texto <b>AESECB2</b> almacena una cabecera, la longitud original y el cifrado '
-    'hexadecimal. Esta representación permite mostrar el texto cifrado en las evidencias.')
-code('AESECB2\n<longitud original en bytes>\n<cifrado hexadecimal>\n<etiqueta HMAC-SHA256 hexadecimal>')
-add('El cambio respecto al Laboratorio 03 es explícito: los archivos AESLAB1 del laboratorio '
-    '(GCM), y los antiguos AESECB1 sin autenticación, no son compatibles con AESECB2. Se rechazan en lugar de '
-    'interpretarlos con un esquema distinto.')
-add('Claves de los casos de estudio', 'h2')
-table(['Caso', 'Entero decimal', 'Clave AES de 16 bytes (hexadecimal)'], [
+page('2. Archivos, cifrado y validación')
+add('El programa aes_archivo carga hasta 4096 bytes, cifra con una clave decimal y recupera '
+    'el contenido con la misma clave. Lee y escribe bytes para conservar UTF-8 y saltos '
+    'de línea. Las salidas se crean en modo exclusivo para proteger archivos existentes.')
+flow(['Leer archivo y validar operación, rutas, clave y tamaño',
+      'Cifrar: AES-128-ECB + PKCS#7; calcular HMAC\nDescifrar: verificar HMAC; recuperar y validar bytes',
+      'Guardar en un archivo nuevo\nAnte un error: informar y eliminar la salida parcial'])
+caption('Figura 1. Flujo del inciso 1. Fuente: aes_archivo.c y aes_comun.h.')
+add('Formato y claves', 'h2')
+add('AESECB2 guarda cuatro líneas: versión, longitud original, cifrado hexadecimal y '
+    'etiqueta HMAC-SHA256. La etiqueta cubre versión, longitud y cifrado; la clave MAC '
+    'se deriva con el dominio Proyecto02/AESECB2/HMAC-SHA256. El archivo se autentica '
+    'antes de descifrar [8]. El formato GCM del laboratorio se conserva como antecedente separado.')
+table(['Caso', 'Clave decimal', 'Clave AES de 16 bytes (hexadecimal)'], [
     (tag+')', str(key), key.to_bytes(16,'big').hex()) for tag,key in keys.items()
-], [35, 137, 296])
-add('Programación defensiva y memoria', 'h2')
-add('Se verifican números decimales, longitudes, formato, archivos ausentes y retornos de EVP. '
-    'Los arreglos de texto/cifrado son acotados y los contextos EVP se liberan al finalizar. '
-    'El proceso 0 valida las entradas MPI y difunde el resultado a los demás para evitar que '
-    'unos continúen y otros abandonen antes de una operación colectiva.')
+], [34,144,290])
+add('Verificación', 'h2')
+add('cmp y SHA-256 comprueban que el archivo recuperado coincide byte a byte con el original. '
+    'La suite incluye un vector AES-128-ECB, 24 casos de archivos y 75 de búsqueda. '
+    'Se prueban archivos vacíos, límites de tamaño, claves incorrectas, contenido alterado, '
+    'rangos extremos, tiempo agotado y hallazgos simultáneos. El registro final terminó con código 0.')
+code('./proyecto02/build/aes_archivo cifrar entrada.txt salida.aes 123456\n./proyecto02/build/aes_archivo descifrar salida.aes recuperado.txt 123456\ncmp entrada.txt recuperado.txt')
 
-page('4. Inciso 1: cifrado y descifrado')
-add('El archivo se lee como bytes para conservar codificación y saltos de línea. En el cifrado '
-    'se convierte la clave, se aplica AES-128-ECB con relleno y se guarda el contenedor. '
-    'En el descifrado se carga el cifrado, se procesa con la clave recibida y se escribe el texto recuperado.')
-flow(['Validar operación, clave, rutas y tamaño de entrada',
-      'Cifrar: leer .txt y convertir el entero a 16 bytes\nDescifrar: cargar y validar el formato AESECB2',
-      'Cifrar: EVP Encrypt + relleno y HMAC\nDescifrar: verificar HMAC, descifrar y validar longitud/relleno',
-      'Si ocurre un error: informar y terminar\nSi termina: guardar en un archivo nuevo y mostrar el resultado'])
-caption('Figura 1. Flujo de procesamiento de archivos. Elaboración propia a partir de aes_archivo.c.')
-add('Verificación de recuperación', 'h2')
-code('./proyecto02/build/aes_archivo cifrar entrada.txt salida.aes 123456\n./proyecto02/build/aes_archivo descifrar salida.aes recuperado.txt 123456\ncmp entrada.txt recuperado.txt\nsha256sum entrada.txt recuperado.txt')
-add('Las capturas del Anexo 2 muestran texto original, cifrado, texto recuperado y hashes iguales. '
-    'La suite del inciso 1 contiene 24 casos, entre ellos archivo vacío, UTF-8, saltos CRLF, '
-    '4096 bytes, exceso de tamaño, formatos dañados y protección de la entrada.')
-add('Autenticación y regresión corregida', 'h2')
-add('La revisión inicial detectó que una clave incorrecta podía producir relleno válido. '
-    'Se corrigió con HMAC-SHA256 en esquema encrypt-then-MAC: la etiqueta autentica el '
-    'formato, la longitud y el cifrado antes de recuperar el archivo. La comparación usa '
-    'CRYPTO_memcmp. El caso 44 se rechaza sin crear salida; también se verifican cambios '
-    'en el primer bloque, en la etiqueta y en la longitud. Un vector independiente de '
-    'clave cero y bloque cero comprueba AES-128-ECB, además de la recuperación [3, 8].')
-
-
-page('5. Estrategia base: lotes estáticos')
-add('Con n = 4 procesos y B = 65536 claves por lote, el proceso p recibe en la ronda r el intervalo '
-    '[offset + (r·n+p)·B, offset + (r·n+p+1)·B), recortado al fin del rango. '
-    'Los lotes de una ronda son disjuntos. Al terminar, una reducción MIN selecciona la '
-    'clave encontrada; UINT64_MAX representa ausencia de acierto.')
+page('3. Estrategia base: lotes estáticos')
+add('El proceso 0 valida el archivo y difunde los parámetros y el cifrado. Con cuatro procesos '
+    'y lotes de B = 65536 candidatas, cada ronda entrega un lote disjunto a cada proceso. '
+    'La referencia secuencial recorre el mismo intervalo en orden ascendente.')
 table(['Ronda', 'P0', 'P1', 'P2', 'P3'], [
     ('0', '[0, B)', '[B, 2B)', '[2B, 3B)', '[3B, 4B)'),
     ('1', '[4B, 5B)', '[5B, 6B)', '[6B, 7B)', '[7B, 8B)'),
-    ('r', 'Desde 4rB', 'Desde (4r+1)B', 'Desde (4r+2)B', 'Desde (4r+3)B'),
 ], [40,107,107,107,107])
-caption('Tabla 1. Reparto base para offset = 0; B = 65536. No es una partición en cuatro bloques gigantes.')
-flow(['P0 valida y carga; MPI_Bcast difunde parámetros y cifrado',
-      'MPI_Barrier; iniciar reloj\nCada proceso descifra y busca la frase en su lote',
-      'MPI_Allreduce(MIN) comparte el acierto\nSin acierto: comprobar tiempo/rango y pasar de ronda',
-      'Con acierto o fin: MPI_Reduce de tiempo y número de intentos\nP0 muestra clave, mensaje y estadísticas'])
-caption('Figura 2. Flujo de la base. La repetición continúa mientras no haya acierto, límite o agotamiento.')
-add('Ventajas y limitaciones', 'h2')
-add('El reparto es simple y no requiere un coordinador que asigne cada lote. Sin embargo, '
-    'todos esperan la finalización de la ronda. Un proceso puede seguir trabajando mientras '
-    'otro ya encontró la clave. Para 123456, el hallazgo ocurre en el lote de P1 de la '
-    'primera ronda, pero los demás completan sus lotes antes del consenso.')
+code('inicio(p, r) = offset + (4*r + p)*B\nfin(p, r) = min(inicio + B, offset + limite)')
+flow(['P0 carga y valida; MPI_Bcast comparte datos\nMPI_Barrier sincroniza el inicio del reloj',
+      'Cada proceso descifra su lote y busca la frase\nSi aparece, confirma el HMAC y guarda la candidata',
+      'MPI_Allreduce(MIN) acuerda el hallazgo\nSin acierto: acordar tiempo agotado o avanzar de ronda',
+      'Al hallar o terminar el rango/tiempo: reducir estadísticas\nP0 muestra el resultado; todos finalizan MPI'])
+caption('Figura 2. Flujo de la base. Las reducciones mantienen el mismo estado entre procesos [4].')
+add('Comportamiento esperado', 'h2')
+add('El reparto requiere poca gestión, pero la parada espera al cierre de la ronda. '
+    'Para 123456, P1 encuentra la clave en la primera ronda mientras los demás '
+    'completan sus lotes. El trabajo adicional explica por qué un aumento de '
+    'claves por segundo no se traduce en la misma reducción del tiempo de búsqueda.')
+add('El valor UINT64_MAX indica ausencia de hallazgo. Los rangos que desbordan se '
+    'rechazan antes de buscar. Los estados son: 0 hallada, 1 entrada/error, '
+    '2 rango agotado y 3 tiempo agotado.', 'small')
 
-page('6. Alternativa: familias de claves')
-add('La alternativa cambia el orden de exploración y la asignación de trabajo. Conserva '
-    'la prueba de descifrado por candidata y añade cuatro familias, cada una con un '
-    'contador de bloques. La familia se genera por índice; no se almacena una lista completa.')
-table(['Familia', 'Candidatas y cobertura'], [
-    ('F0: valores bajos', 'Enteros desde 0 hasta 2^24 - 1. Incluye 123456.'),
-    ('F1: patrones humanos', 'Fechas numéricas, dígitos repetidos, potencias de 2 y de 10 con sus vecinos y constantes. Incluye 2^54 y 2^54+1.'),
-    ('F2: texto ASCII', 'Cadenas de 1 a 5 caracteres de [a-z0-9] convertidas a un entero big endian.'),
-    ('F3: barrido de respaldo', 'Intervalo desde offset; por defecto offset = 2^24 y cantidad = 2^63. La cobertura depende de estos parámetros.'),
-], [115,353])
-d = Drawing(WIDTH, 180)
-for i, label in enumerate(['F0: bajos','F1: patrones','F2: ASCII','F3: barrido']):
-    box(d, i*118, 135, 112, 30, label, size=8)
-    arrow(d, i*118+56, 135, i*118+56, 109)
-box(d, 0, 67, 466, 42, 'Ventana RMA en P0: un contador atómico por familia\nMPI_Fetch_and_op(+1) obtiene el siguiente bloque libre')
-for i in range(4):
-    box(d,i*118, 5,112,35,f'Proceso {i}\nInicia en F{i}',size=8)
-    arrow(d,i*118+56,40,i*118+56,67)
-story.append(d)
-caption('Figura 3. Asignación dinámica por familia. El tamaño habitual de bloque es 65536 candidatas.')
-add('Asignación y balanceo', 'h2')
-add('P0 expone cuatro contadores mediante MPI_Win_create. Cada proceso incrementa el contador '
-    'de su familia con MPI_Fetch_and_op y completa la operación con MPI_Win_flush. El valor '
-    'anterior identifica un bloque exclusivo dentro de esa familia [5]. Cuando una familia '
-    'se agota, el proceso solicita trabajo de las siguientes en orden circular.')
-add('La asignación evita duplicar índices de una misma familia. No elimina coincidencias '
-    'entre familias: un entero puede aparecer como valor bajo, patrón o parte del barrido. '
-    'El proceso conserva su preferencia de familia hasta agotarla; no hay redistribución '
-    'continua basada en el tiempo restante de cada familia.')
-
-add('Modo de control -e', 'h2')
-add('La opción -e desactiva F0, F1 y F2; todos los procesos solicitan bloques del mismo barrido. Con offset, límite y lote iguales a la base, permite comparar la asignación dinámica sin el efecto de priorizar patrones.', 'small')
-
-page('7. Comunicación y pseudocódigo')
-add('Antes de buscar, cada proceso deja una recepción MPI_Irecv pendiente. Si encuentra la '
-    'frase y confirma el HMAC, envía la clave y familia con MPI_Issend [6]. Los receptores '
-    'consultan MPI_Test cada 4096 intentos por familia y también entre bloques. '
-    'El aviso reduce el trabajo posterior al acierto sin exigir una reducción por lote.')
-code('P0 valida y difunde parámetros y texto cifrado\ncrear ventana con contador[0..3] = 0\npublicar recepción no bloqueante de aviso\nsincronizar e iniciar reloj\nmientras haya trabajo y no haya finalizado:\n    elegir primera familia no agotada según preferencia del rank\n    bloque = incremento atómico del contador de esa familia\n    si bloque fuera de la familia: marcar agotada y continuar\n    para cada índice del bloque:\n        candidata = generar_clave(familia, índice)\n        descifrar y buscar la frase\n        si hay acierto:\n            guardar clave y familia; enviar aviso a todos; finalizar\n        cada 4096 intentos:\n            consultar aviso y tiempo límite\n    consultar aviso entre bloques\nacordar clave mínima y familia mediante MPI_Allreduce\nreducir tiempo máximo e intentos; drenar mensajes mientras MPI_Testall completa envíos\nliberar ventana y contexto; P0 reporta; MPI_Finalize')
-d = Drawing(WIDTH, 150)
-for i in range(4):
-    x=54+i*120
-    box(d,x-35,115,70,25,f'P{i}')
-    d.add(Line(x,110,x,35,strokeColor=GRAY,strokeDashArray=[3,3]))
-for target in [54,174,414]:
-    arrow(d,294,92,target,65)
-box(d,0,0,468,30,'MPI_Allreduce: consenso final; MPI_Reduce: estadísticas')
-d.add(String(300,97,'P2 encuentra la frase',fontName='BodyBold',fontSize=8,fillColor=GREEN))
-story.append(d)
-caption('Figura 4. Ejemplo de aviso de P2 al resto. Los receptores detienen su búsqueda al detectar el mensaje.')
-add('Al terminar se cancela/completa la recepción pendiente y se drenan avisos mientras '
-    'MPI_Testall progresa los envíos. La reducción final permite resolver aciertos '
-    'simultáneos conservando la clave menor. El tiempo informado incluye el consenso, '
-    'pero excluye la creación de la ventana y la limpieza posterior.', 'small')
-
-page('8. Metodología experimental')
-table(['Variable','Configuración'],[
-    ('Mensaje / frase','Esta es una prueba de proyecto 2 / es una prueba de. Se conservan los saltos del archivo.'),
-    ('Procesos y rango','4 procesos MPI. Base y secuencial: [0, 2^56), que incluye las tres claves.'),
-    ('Compilación','C11, -O2, -Wall, -Wextra, -Wpedantic; GCC 15.2.0; OpenSSL 3.5.5; Open MPI 5.0.10.'),
-    ('Sistema',metadata['sistema']),('CPU visible a WSL',cpu_name),
-    ('Serie principal',f'{date}; {reps} repeticiones por cada combinación. Corte de {cutoff} s para las búsquedas largas.'),
-    ('Lote / sondeo','Principal: 65536 claves por lote; sondeo cada 4096 intentos. Control: lote 4096.'),
-    ('Fuentes','resultados.json, bitacora.txt y resultados.md. Metadatos de CPU, versiones, comandos y SHA-256 de fuentes.'),
+page('4. Alternativa: familias y avisos')
+add('La alternativa genera candidatas por familias y asigna sus bloques de forma dinámica. '
+    'Cada proceso empieza por la familia de su rank y, al agotarla, sigue en orden circular. '
+    'Las claves objetivo nunca se reciben como argumento de búsqueda.')
+table(['Familia', 'Candidatas'], [
+    ('F0. Valores bajos', 'Enteros en [0, 2^24). Incluye 123456.'),
+    ('F1. Patrones', 'Fechas numéricas, dígitos repetidos, potencias de 2 y 10 con vecinos y constantes. Incluye 2^54 y 2^54 + 1.'),
+    ('F2. ASCII', 'Cadenas de 1 a 5 caracteres de [a-z0-9], empaquetadas como entero big endian.'),
+    ('F3. Barrido', 'Intervalo configurable. Por defecto comienza en 2^24 y contiene 2^63 candidatas.'),
 ], [110,358])
-add('Procedimiento y tiempo medido','h2')
-add('Se cifra el texto con cada clave y se ejecutan las tres versiones cinco veces. '
-    'Todos los códigos de salida y métricas se validan. Las búsquedas largas finalizan '
-    'con código 3; las completadas con 0 y la clave esperada. La salida se guarda tras '
-    'cada comando y un timeout externo invalida la medición. Se informa mediana, '
-    'mínimo, máximo y desviación estándar muestral en resultados.md.')
-add('MPI_Wtime se inicia tras una barrera; la secuencial usa CLOCK_MONOTONIC. '
-    'Se excluyen lectura, lanzamiento y reporte. El intervalo alternativo incluye '
-    'el consenso de clave, pero excluye el drenaje y liberación posteriores. Son '
-    'tiempos de búsqueda, no tiempos completos de la aplicación.')
-add('Control y límites de validez','h2')
-add('Se agrega la clave 750123 con rango [0, 1000000), lote 4096 y alternativa '
-    'en modo -e. Las tres versiones exploran el mismo espacio ascendente por bloques; '
-    'la asignación y la parada pueden variar el trabajo efectivo. El entorno WSL '
-    'es una máquina compartida: no hay aislamiento de carga ni estudio de varios nodos. '
-    'Se registra la CPU visible, pero no se infiere de ella el hardware físico reservado.')
+d = Drawing(WIDTH, 115)
+box(d, 0, 70, WIDTH, 35, 'P0 expone cuatro contadores RMA: uno por familia')
+for i in range(4):
+    box(d, i*118, 5, 112, 35, f'Proceso {i}\nPrefiere F{i}')
+    arrow(d, i*118+56, 40, i*118+56, 70)
+story.append(d)
+caption('Figura 3. MPI_Fetch_and_op reserva un bloque exclusivo; MPI_Win_flush completa la operación [5].')
+code('publicar recepción de aviso; sincronizar e iniciar reloj\nmientras haya trabajo y no haya aviso ni tiempo agotado:\n    elegir familia; reservar bloque con incremento atómico\n    para cada candidata del bloque:\n        descifrar, buscar frase y confirmar HMAC\n        si acierta: enviar clave/familia con MPI_Issend; salir\n        cada 4096 intentos: consultar MPI_Test y reloj\n    consultar aviso y reloj entre bloques\nacordar clave y estado; reducir tiempo e intentos\ndrenar avisos hasta completar envíos; liberar recursos')
+add('Cada proceso deja un MPI_Irecv abierto y sondea el aviso de hallazgo [6]. '
+    'El consenso final resuelve aciertos simultáneos. Los índices no se repiten dentro '
+    'de una familia, aunque distintas familias pueden producir la misma candidata. '
+    'El modo -e conserva solo F3 y permite comparar la distribución sin priorizar patrones.', 'small')
 
+page('5. Método y resultados')
+add(f'Se registraron {len(all_runs)} ejecuciones el {date}: cinco por combinación de '
+    'programa y caso, incluido un control. Las versiones MPI usaron cuatro procesos. '
+    'Se informa la mediana; el Anexo 2 reúne las muestras y resultados.md conserva su dispersión.')
+table(['Condición', 'Configuración registrada'], [
+    ('Entrada', 'Esta es una prueba de proyecto 2; frase: es una prueba de.'),
+    ('Entorno', f'WSL; {cpu_name}. GCC 15.2.0, OpenSSL 3.5.5 y Open MPI 5.0.10; C11 y -O2.'),
+    ('Serie principal', f'Base/secuencial: [0, 2^56), sin offset cercano a la clave. Lote 65536; corte de {cutoff} s en recorridos largos.'),
+    ('Control', 'Clave 750123; rango [0, 1000000); lote 4096; alternativa con -e.'),
+], [94,374])
+add('Tiempo hasta hallar la clave', 'h2')
+table(['Caso / clave', 'Secuencial (s)', 'Base MPI (s)', 'Alternativa (s)'], [
+    (f'{tag}) {keys[tag]}', f'{med(tag,"secuencial"):.6f}' if tag=='a' else 'Sin hallazgo*',
+     f'{med(tag,"base"):.6f}' if tag=='a' else 'Sin hallazgo*', f'{med(tag,"alternativa"):.6f}')
+    for tag in keys
+], [150,106,106,106])
+caption('* En b) y c), secuencial y base finalizaron por tiempo con código 3. El intervalo sí incluye las claves.')
+add('Duración de las búsquedas interrumpidas', 'h2')
+table(['Caso / programa', 'Tiempo (s)', 'Intentos (mediana)', 'Claves/s'], [
+    (f'{tag}) {mode}', f'{med(tag,mode):.6f}', f'{med(tag,mode,"attempts"):,.0f}',
+     f'{med(tag,mode,"rate"):,.0f}')
+    for tag in ['b','c'] for mode in ['secuencial','base']
+], [115,90,143,120])
+add('Los relojes miden la búsqueda: excluyen lectura, lanzamiento MPI y reporte. '
+    'La alternativa incluye el consenso de clave y excluye el drenaje posterior. '
+    'El entorno WSL comparte recursos; las cinco muestras describen esta ejecución, '
+    'sin establecer escalabilidad entre máquinas.', 'small')
 
-page('9. Resultados medidos')
-add('Caso a): clave 123456', 'h2')
-table(['Programa', 'Mediana (s)', 'Rendimiento (claves/s)', 'Estado'], [
-    (m, f'{med("a",m):.9f}', f'{med("a",m,"rate"):,.0f}', 'Hallada; n = 5')
-    for m in ['secuencial','base','alternativa']
-], [100,105,145,118])
-add('La base obtiene una pequeña reducción del tiempo frente a la secuencial. '
-    'La alternativa tarda más en este caso porque los otros procesos exploran '
-    'familias que no contienen el acierto inmediato, mientras la búsqueda de '
-    'valores bajos avanza hacia 123456. Un mayor total de claves por segundo '
-    'no implica menor tiempo hasta el hallazgo si se prueban más candidatas.')
-add('Casos b) y c): alternativa', 'h2')
-table(['Caso', 'Clave', 'Mediana (s)', 'Familia / estado'], [
-    (tag+')', str(keys[tag]), f'{med(tag,"alternativa"):.9f}', 'Patrones; hallada, n = 5')
-    for tag in ['b','c']
-], [35,145,105,183])
-add('Ambas claves se encuentran en la familia de potencias y vecinos. Son candidatas '
-    'contiguas dentro de esa enumeración. La diferencia de sus medianas es pequeña '
-    'y no permite concluir que aumentar en uno la clave produzca por sí mismo un '
-    'cambio estable del rendimiento.')
-add('Muestras interrumpidas desde cero', 'h2')
-table(['Caso / programa', 'Tiempo real (s)', 'Intentos', 'Claves/s'], [
-    (f'{tag}) {m}', f'{med(tag,m):.6f}',
-     f'{med(tag,m,"attempts"):,.0f}', f'{med(tag,m,"rate"):,.0f}')
-    for tag in ['b','c'] for m in ['secuencial','base']
-], [115,105,138,110])
-caption('Tabla 2. Medianas de cinco muestras por fila; código 3: tiempo agotado sin hallazgo. Cada campo se resume por separado.')
-add(f'Las capturas del Anexo 2 son sesiones independientes con cortes de {cutoff} s. Sus tiempos individuales no sustituyen las medianas de esta serie.', 'small')
-
-page('10. Estimaciones y speedup')
-add('Proyección de las búsquedas exhaustivas', 'h2')
-code('T_estimado(k) = (k + 1) / mediana(R_medido)\nSupuestos: inicio en 0; rango [0, 2^56); tasa constante.\nAños de referencia = segundos / (365.25 * 24 * 3600)')
-table(['Caso', 'Programa', 'Proyección (s)', 'Años aprox.'], [
-    (tag+')',m, f'{(keys[tag]+1)/med(tag,m,"rate"):.6g}',
-     f'{(keys[tag]+1)/med(tag,m,"rate")/31557600:.1f}')
-    for tag in ['b','c'] for m in ['secuencial','base']
-], [40,100,180,148])
-add('Estos valores son extrapolaciones del rendimiento de una muestra corta a '
-    'décadas o siglos de cómputo. No son tiempos medidos hasta el hallazgo, ni '
-    'predicciones con incertidumbre cuantificada. En MPI la expresión aproxima '
-    'el trabajo por rondas; para claves tan grandes, el lote final es despreciable '
-    'frente al número proyectado de intentos.')
-add('Razones de tiempo', 'h2')
-rows=[]
-for tag in keys:
-    seq=med(tag,'secuencial') if tag=='a' else (keys[tag]+1)/med(tag,'secuencial','rate')
-    base=med(tag,'base') if tag=='a' else (keys[tag]+1)/med(tag,'base','rate')
-    alt=med(tag,'alternativa')
-    rows.append((tag+')', f'{seq/base:.2f}',f'{seq/base/4:.3f}',f'{base/alt:.3g}',
-                 'Medida' if tag=='a' else 'Proyectada'))
-table(['Caso','S base/sec','E base','G alt/base','Naturaleza'],rows,[40,95,75,100,158])
-seq,base,alt=(med('a',m) for m in ['secuencial','base','alternativa'])
-add(f'Para a), S = {seq:.9f} / {base:.9f} = <b>{seq/base:.3f}</b> y '
-    f'E = <b>{100*seq/base/4:.1f} %</b>. La razón base/alternativa es '
-    f'<b>{base/alt:.3f}</b>. Una razón menor que uno indica que la alternativa tarda más.')
-add('Las razones de b) y c) combinan un tiempo exhaustivo proyectado con uno heurístico '
-    'medido. Expresan una ventaja condicionada por las familias y la extrapolación; '
-    'no son un speedup paralelo puro por usar cuatro procesos.')
-
-page('10.1. Control de distribución', '10.1. Control de distribución')
+page('6. Análisis del rendimiento')
 control=[r for r in all_runs if r['phase']=='control']
 def ctrl(mode,field='time'):
     return median(r[field] for r in control if r['mode']==mode)
-table(['Programa','Mediana (s)','Mínimo (s)','Máximo (s)','Intentos med.'],[
-    (m,f'{ctrl(m):.6f}',f'{min(r["time"] for r in control if r["mode"]==m):.6f}',
-     f'{max(r["time"] for r in control if r["mode"]==m):.6f}',f'{ctrl(m,"attempts"):,.0f}')
-    for m in ['secuencial','base','alternativa']], [100,95,85,85,103])
-add('Condiciones: clave 750123, mismo archivo, rango [0, 1000000), lote 4096, '
-    'cinco repeticiones por versión, cuatro procesos en MPI y -e en la alternativa. '
-    'Se desactivan las familias heurísticas para comparar el reparto sobre el '
-    'mismo espacio. Los intentos pueden diferir por la asignación y la anticipación '
-    'de la parada, que forman parte del comportamiento de cada estrategia.')
-add(f'La base obtiene S = <b>{ctrl("secuencial")/ctrl("base"):.3f}</b> y eficiencia '
-    f'<b>{100*ctrl("secuencial")/ctrl("base")/4:.1f} %</b>. La razón base/alternativa '
-    f'es <b>{ctrl("base")/ctrl("alternativa"):.3f}</b>; debe interpretarse con '
-    'las muestras, los intentos y la dispersión conservada en resultados.md.')
-add('Este control permite separar la priorización de patrones de la asignación '
-    'dinámica. No demuestra superioridad universal ni garantiza el mismo resultado '
-    'con otro tamaño de lote, hardware o clave. La variación de WSL y las diferencias '
-    'de sondeo pueden modificar tanto el número de intentos como el tiempo.')
-add('Correcciones verificadas','h2')
-table(['Área','Validación realizada'],[
-    ('Archivos','Clave 44 rechazada; alteración de primer bloque, longitud y etiqueta rechazada sin salida.'),
-    ('Aritmética','Rangos que desbordan se rechazan; pruebas de búsqueda hasta UINT64_MAX - 1 sin vuelta a cero.'),
-    ('MPI','Aciertos simultáneos, tiempo límite común, solicitudes dimensionadas según procesos y drenaje de envíos.'),
-    ('Entorno','WSL/Open MPI 5: el lanzador trata retornos como normales y el helper recupera el consenso Estado MPI. Sin estado o ante timeout, falla.'),
-], [110,358])
+seq,base,alt=(med('a',mode) for mode in ['secuencial','base','alternativa'])
+table(['Comparación medida', 'S base/sec.', 'E base', 'G base/alt.'], [
+    ('a) Clave 123456', f'{seq/base:.3f}', f'{100*seq/base/4:.1f} %', f'{base/alt:.3f}'),
+    ('Control: clave 750123', f'{ctrl("secuencial")/ctrl("base"):.3f}',
+     f'{100*ctrl("secuencial")/ctrl("base")/4:.1f} %', f'{ctrl("base")/ctrl("alternativa"):.3f}'),
+], [180,96,96,96])
+add(f'Para a), S = {seq:.6f} / {base:.6f} = <b>{seq/base:.3f}</b>. '
+    'La base fue más rápida que la secuencial y que la alternativa. Esta última '
+    'dedica parte del trabajo a otras familias y añade coordinación. Esos costos '
+    'pueden explicar su mayor tiempo en una búsqueda tan corta.')
+add('El control sin heurísticas', 'h2')
+table(['Programa', 'Mediana (s)', 'Mínimo (s)', 'Máximo (s)'], [
+    (mode, f'{ctrl(mode):.6f}', f'{min(r["time"] for r in control if r["mode"]==mode):.6f}',
+     f'{max(r["time"] for r in control if r["mode"]==mode):.6f}')
+    for mode in ['secuencial','base','alternativa']
+], [150,106,106,106])
+add('Con el mismo rango y lote, la base vuelve a obtener el menor tiempo. '
+    'La asignación dinámica y los avisos anticipados no bastaron para superarla. '
+    'El número de intentos puede variar por la asignación y el momento de parada; '
+    'el control compara esas políticas sin el efecto de las familias.')
+add('Por qué las claves grandes se encuentran pronto', 'h2')
+add('2^54 y 2^54 + 1 aparecen cerca dentro de la familia de potencias y vecinos. '
+    'Su ventaja proviene del orden de candidatas. El costo de AES por intento '
+    'no crece con el valor decimal de la clave; crece el número de intentos '
+    'necesarios para alcanzarla en un recorrido ascendente.')
+add('Proyección del recorrido exhaustivo', 'h2')
+table(['Caso', 'Secuencial (años)', 'Base MPI (años)'], [
+    (tag+')', f'{(keys[tag]+1)/med(tag,"secuencial","rate")/31557600:.1f}',
+     f'{(keys[tag]+1)/med(tag,"base","rate")/31557600:.1f}') for tag in ['b','c']
+], [80,194,194])
+add('Se calcula T = (clave + 1) / mediana(claves/s), con tasa constante y año de '
+    '365,25 días. Es una extrapolación desde cinco segundos de búsqueda. '
+    'No se calcula speedup de hallazgo para b) y c), porque faltan tiempos '
+    'exhaustivos completos.', 'small')
 
-
-page('11. Discusión de resultados')
-add('Influencia de la clave y el recorrido', 'h2')
-add('En el recorrido ascendente, una clave baja se visita pronto y una clave '
-    'alta requiere muchos intentos. El costo de descifrar con AES no crece '
-    'por el valor decimal de la candidata; cambia su posición en la búsqueda. '
-    'En la alternativa, una clave numéricamente grande puede visitarse pronto '
-    'si tiene una estructura favorecida por las familias. La posición en la '
-    'enumeración explica mejor el resultado que la magnitud aislada del entero.')
-add('Distribución y comunicación', 'h2')
-add('La base hace trabajo extra hasta cerrar la ronda y el proceso con más '
-    'trabajo determina la espera colectiva. La alternativa permite avisar '
-    'antes y asignar bloques a quien los solicite, a cambio de operaciones '
-    'RMA, sondeo y generación de patrones. Para búsquedas cortas esos costos '
-    'pueden dominar. En a), el número de intentos de la base es mayor que '
-    'el secuencial, por lo que el cociente de tasas no coincide con el speedup '
-    'hasta encontrar la clave.')
-add('Ventajas y limitaciones de la alternativa', 'h2')
-add('La priorización es útil para valores estructurados y evita fijar un '
-    'offset junto a la clave en b) y c). Sin embargo, el conjunto de pruebas '
-    'favorece precisamente las familias elegidas: una clave sin estructura '
-    'puede depender del barrido de respaldo y tardar mucho más. Hay '
-    'solapamiento de candidatas entre familias y la cobertura total depende '
-    'de los límites; no se demuestra una aceleración general de AES-128.')
-add('Retos y soluciones implementadas', 'h2')
-add('Se separó el código original del laboratorio, se definió un formato de '
-    'archivo verificable, se compartió la validación MPI desde P0 y se '
-    'reutilizó un contexto EVP por proceso. Para las ejecuciones impracticables '
-    'se añadió un corte de tiempo y se conservaron rendimiento e intentos. '
-    'Las capturas usan --mca osc ^ucx para evitar avisos de ese componente en WSL.')
-add('Correcciones y aprendizaje', 'h2')
-add('Se corrigieron la aceptación de claves incorrectas con HMAC, la configuración '
-    'del rango de medición, los desbordamientos en extremos de 64 bits, el consenso '
-    'del tiempo agotado y el drenaje de aciertos simultáneos. Los parámetros se '
-    'difunden con tipos MPI explícitos. En WSL se evita la ruta PRRTE de errores '
-    'no-cero y el helper devuelve el consenso explícito Estado MPI del programa. '
-    'La ausencia de ese estado invalida la ejecución; los timeouts no se reintentan. '
-    'El aprendizaje es separar corrección, orden de búsqueda, coordinación y '
-    'calidad de la evidencia antes de afirmar una mejora de rendimiento.')
-
-
-page('12. Conclusiones y recomendaciones')
+page('7. Discusión y conclusiones')
+add('Retos y soluciones', 'h2')
+add('La revisión del programa resolvió tres problemas principales: aceptar claves '
+    'incorrectas con relleno válido, desbordar rangos de 64 bits y coordinar la '
+    'terminación MPI. Se incorporaron autenticación HMAC, validación de intervalos '
+    'y consenso de estado con drenaje de avisos. Las regresiones cubren esas rutas.')
+add('En WSL con Open MPI 5, el helper evita una ruta problemática de PRRTE y '
+    'recupera el estado explícito que imprime el programa. Si falta ese estado '
+    'o vence el timeout externo, la ejecución falla. Las mediciones conservan '
+    'comandos, intentos, estados y hashes de las fuentes para comprobar su procedencia.')
 add('Conclusiones', 'h2')
-for t in [
-    '1. Se completaron carga, cifrado y recuperación autenticada de archivos, referencia secuencial y dos estrategias MPI. La verificación incluye un vector AES-128-ECB, 24 casos de archivos y 75 casos de búsqueda, con entradas inválidas, extremos numéricos y aciertos simultáneos.',
-    f'2. Para 123456, la base obtiene un speedup medido de {seq/base:.3f} y eficiencia de {100*seq/base/4:.1f} %. La razón base/alternativa es {base/alt:.3f}. Estos valores corresponden a medianas de cinco ejecuciones y no garantizan mejoras para toda clave.',
-    f'3. Las medianas alternativas para 2^54 y 2^54+1 son {med("b","alternativa"):.6f} s y {med("c","alternativa"):.6f} s. La priorización de potencias y vecinos permite encontrarlas sin fijar el offset junto a la clave.',
-    f'4. El control exhaustivo de la clave 750123 obtiene una razón base/alternativa de {ctrl("base")/ctrl("alternativa"):.3f} con el mismo rango y lote. Es una comparación de distribución y parada sin priorización de familias.',
-    '5. Las búsquedas largas de base y secuencial están correctamente configuradas para incluir las claves, pero se interrumpen por tiempo. Las proyecciones no representan hallazgos medidos. Tampoco se recorrió el espacio completo de AES-128.'
-]: add(t)
-add('Recomendaciones y continuidad', 'h2')
-for t in [
-    '1. Mantener los casos de regresión de autenticación, rangos y terminación en cada cambio; compilar y ejecutar las pruebas desde el ZIP antes de entregar.',
-    '2. Usar los JSON y comandos conservados para repetir las mediciones. Para estudios de rendimiento más precisos, aislar carga, registrar afinidad y repetir en máquinas o nodos dedicados.',
-    '3. Evaluar más claves sin estructura y tamaños de lote. Analizar dispersión e intentos junto con las medianas, sin atribuir al paralelismo la ganancia causada por el orden de candidatas.',
-    '4. Conservar AES-128-ECB como esquema didáctico del experimento. Para una aplicación real, emplear un diseño autenticado normalizado y claves aleatorias de entropía completa.'
-]: add(t)
+for text in [
+    '1. Se completaron el procesamiento de archivos, la búsqueda secuencial y ambas estrategias MPI. El registro final confirma los vectores AES, 24 casos de archivos y 75 de búsqueda.',
+    f'2. La base obtuvo speedups medidos de {seq/base:.3f} en 123456 y {ctrl("secuencial")/ctrl("base"):.3f} en el control. Fue la opción más rápida en las dos comparaciones sin ventaja por patrones.',
+    f'3. La alternativa recuperó 2^54 y 2^54 + 1 en medianas de {med("b","alternativa"):.6f} s y {med("c","alternativa"):.6f} s. La priorización explica el hallazgo; los resultados no demuestran una ventaja para claves arbitrarias.',
+    '4. Las búsquedas exhaustivas grandes quedaron interrumpidas por costo computacional. El experimento está cerrado con esa limitación documentada; las proyecciones no equivalen a ejecuciones completadas.',
+]: add(text)
+add('Recomendaciones', 'h2')
+add('Para ampliar el estudio conviene medir claves sin estructura, variar el tamaño de '
+    'lote y repetir con afinidad de procesos y carga controlada. Esas pruebas permitirían '
+    'evaluar si la asignación dinámica mejora en problemas más largos. Para la entrega '
+    'actual, deben conservarse las fuentes y evidencias verificadas, junto con el '
+    'paquete reproducible. ECB y las claves numéricas se limitan al objetivo didáctico.')
 
-
-page('13. Referencias bibliográficas')
+page('Referencias bibliográficas')
 refs = [
     ('1', 'National Institute of Standards and Technology. (2023). <i>Advanced Encryption Standard (AES), FIPS 197-upd1.</i>', 'https://csrc.nist.gov/pubs/fips/197/final'),
     ('2', 'Dworkin, M. (2001). <i>Recommendation for Block Cipher Modes of Operation: Methods and Techniques. NIST SP 800-38A.</i>', 'https://csrc.nist.gov/pubs/sp/800/38/a/final'),
@@ -553,17 +400,10 @@ refs = [
 ]
 for n,desc,url in refs:
     add(f'[{n}] {desc}')
-    add(f'<link href="{url}" color="#006B54">{url}</link>', 'small')
+    add(f'<link href="{url}" color="#1A4C8B">{url}</link>', 'small')
 add('[7] Universidad del Valle de Guatemala. (2026). <i>CC3069 - Proyecto 02.</i> '
     'Enunciado y rúbrica del curso Computación Paralela y Distribuida, Ciclo 2. Documento proporcionado con el proyecto.')
-add('Fuentes primarias del experimento', 'h2')
-add('Repositorio del Proyecto 02: proyecto02/src/, proyecto02/include/ y proyecto02/tests/. '
-    'Resultados: evidencias/inciso2/bitacora.txt, resultados.json y resultados.md. '
-    'Capturas y transcripciones: evidencias/inciso1/ y evidencias/inciso2/. '
-    'Registro final de pruebas: evidencias/pruebas/ultima_prueba.txt.', 'small')
-add('Las referencias web se consultaron para la elaboración del informe. Las explicaciones '
-    'conceptuales están parafraseadas y señaladas con referencias numéricas en el cuerpo. '
-    'Los diagramas y cálculos son de elaboración propia a partir del código y los registros.', 'small')
+add('Los diagramas y cálculos se elaboraron a partir del código y las evidencias del repositorio.', 'small')
 
 page('Anexo 1. Catálogo de funciones', 'Anexo 1. Funciones AES y archivos')
 add('A1.1. AES y formato: proyecto02/include/aes_comun.h', 'h2')
@@ -655,108 +495,54 @@ table(['Librería / API', 'Entradas, salidas y uso en el proyecto'], [
 ], [178,290])
 add('Dataset conserva longitud, cifrado y etiqueta HMAC. Params contiene rangos, tiempo, modo y frase. La difusión usa MPI_UINT64_T, MPI_INT y caracteres explícitos; no transmite el padding de estructuras nativas.', 'small')
 
-page('Anexo 2. Evidencia de compilación', 'Anexo 2. Compilación')
-add('Las capturas reales de xterm se obtuvieron con Xvfb, en un namespace privado para no alterar WSLg. Cada una tiene transcripción .txt y hashes en evidencias/capturas.json. Son sesiones independientes de la serie de medianas.')
-shot('evidencias/inciso1/01_compilacion.png',440)
-caption('Figura A2.1. Entorno WSL, compilación de los cuatro ejecutables del proyecto y programas originales. Fuente: evidencias/inciso1/01_compilacion.png y compilacion.txt.')
-add('Interpretación', 'h2')
-add('Se observan los comandos make clean, make y make laboratorio, así como GCC '
-    'y mpicc con enlace a libcrypto. Se generan aes_archivo, busqueda_secuencial, '
-    'busqueda_base y busqueda_alternativa. La captura contiene la versión GCC '
-    '15.2.0, Open MPI 5.0.10 y OpenSSL 3.5.5.')
+page('Anexo 2. Compilación y verificación', 'Anexo 2. Compilación y pruebas')
+shot('evidencias/inciso1/01_compilacion.png', 300)
+caption('A2.1. Compilación en WSL de los ejecutables del proyecto y del laboratorio. Transcripción: inciso1/compilacion.txt.')
+shot('evidencias/inciso1/04_verificacion.png', 300)
+caption('A2.2. Archivos idénticos, rechazo de clave incorrecta y pruebas de archivos. Transcripción: inciso1/verificacion.txt.')
 
-page('Anexo 2. Evidencia de archivos', 'Anexo 2. Cifrado y descifrado')
-shot('evidencias/inciso1/02_cifrado.png',240)
-caption('Figura A2.2. Texto original, clave 123456 y representación hexadecimal del cifrado. Fuente: evidencias/inciso1/02_cifrado.png y cifrado.txt.')
-shot('evidencias/inciso1/03_descifrado.png',240)
-caption('Figura A2.3. Descifrado con la misma clave y lectura del archivo recuperado. Fuente: evidencias/inciso1/03_descifrado.png y descifrado.txt.')
-add('Estas ejecuciones satisfacen la demostración de entrada, cifrado y recuperación '
-    'del inciso 1. La equivalencia byte a byte se comprueba en la siguiente página.', 'small')
+page('Anexo 2. Cifrado y recuperación', 'Anexo 2. Archivos')
+shot('evidencias/inciso1/02_cifrado.png', 300)
+caption('A2.3. Texto original, clave 123456 y cifrado hexadecimal. Transcripción: inciso1/cifrado.txt.')
+shot('evidencias/inciso1/03_descifrado.png', 300)
+caption('A2.4. Recuperación del mensaje con la misma clave. Transcripción: inciso1/descifrado.txt.')
 
-page('Anexo 2. Verificación y pruebas', 'Anexo 2. Verificación')
-shot('evidencias/inciso1/04_verificacion.png',325)
-caption('Figura A2.4. cmp, hashes SHA-256 iguales, rechazo de la clave incorrecta 44 y 24 casos de archivos. Fuente: evidencias/inciso1/04_verificacion.png y verificacion.txt.')
-add('Registro final de pruebas', 'h2')
-summary=[x for x in test_log.splitlines() if any(word in x for word in ['Fecha:','PASS:', 'limites,','Pruebas de','Código de salida:'])]
-code('\n'.join(summary))
-caption('Extracto de evidencias/pruebas/ultima_prueba.txt. El vector GCM corresponde al laboratorio y el vector ECB verifica el cifrado utilizado por el proyecto.')
-add('Las regresiones cubren autenticación de contenido, longitud y etiqueta, límites de '
-    'archivos y rangos, frases cortas, tiempo límite y aciertos simultáneos. El helper '
-    'MPI conserva los códigos reales: 1 para entrada inválida, 2 para ausencia y '
-    '3 para tiempo agotado. Un timeout externo provoca un fallo y no se contabiliza '
-    'como prueba superada.', 'small')
-
-
-for tag, num in [('a',5),('b',6),('c',7)]:
-    page(f'Anexo 2. Caso {tag}): clave {keys[tag]}',f'Anexo 2. Captura del caso {tag})')
-    shot(f'evidencias/inciso2/0{num-4}_clave_{tag}.png',455)
-    caption(f'Figura A2.{num}. Ejecución de las tres versiones para la clave {keys[tag]}. '
-            f'Fuente: evidencias/inciso2/0{num-4}_clave_{tag}.png y clave_{tag}.txt.')
+for tag,num in [('a',1),('b',2),('c',3)]:
+    page(f'Anexo 2. Caso {tag}): clave {keys[tag]}', f'Anexo 2. Búsqueda del caso {tag})')
+    shot(f'evidencias/inciso2/0{num}_clave_{tag}.png', 400)
+    caption(f'A2.{num+4}. Ejecución de las tres versiones. Transcripción: inciso2/clave_{tag}.txt.')
     if tag=='a':
-        add('Las tres versiones encuentran 123456. La captura corresponde a una ejecución '
-            'individual de evidencia y no sustituye la mediana de las cinco muestras '
-            'de la serie principal. Los comandos, la clave y la frase son visibles.')
+        add('Las tres versiones recuperan 123456 y muestran el mensaje requerido. '
+            'Los tiempos de esta captura pertenecen a una sesión de demostración; '
+            'las comparaciones del cuerpo usan las cinco muestras de la serie experimental.')
     else:
-        add(f'La secuencial y la base se interrumpen tras aproximadamente {cutoff} s '
-            'sin hallar la clave y devuelven 3. El rango explícito [0, 2^56) incluye '
-            'la candidata objetivo. La alternativa encuentra la clave en la familia '
-            'de patrones sin conocerla como argumento de búsqueda. La configuración '
-            'de PRRTE evita su ruta problemática de errores no-cero; el helper '
-            'recupera el código real desde Estado MPI, mostrado en la salida.')
+        add(f'La secuencial y la base detienen el recorrido [0, 2^56) tras el corte '
+            f'de {cutoff} segundos, sin hallar la clave. La alternativa la recupera '
+            'en la familia de patrones, sin recibirla como parámetro.')
+    add('Procedencia de las capturas', 'h2')
+    add('Las siete imágenes son capturas de sesiones xterm con Xvfb. Sus comandos y '
+        'salidas se conservan en archivos .txt; capturas.json registra sus hashes. '
+        'La serie de medianas tiene su propia bitácora y se mantiene separada.', 'small')
 
-
-page('Anexo 2. Bitácora de mediciones', 'Anexo 2. Mediciones individuales')
-add(f'Serie principal: {date}. Las columnas enumeran las cinco '
-    'ejecuciones de la bitácora y la mediana calculada sin mezclar las sesiones de capturas.')
-headers=['Caso / programa','1 (s)','2 (s)','3 (s)','4 (s)','5 (s)','Mediana']
+page('Anexo 2. Bitácora y reproducción', 'Anexo 2. Muestras y reproducción')
+add('Tiempos individuales en segundos. Cada fila reúne cinco ejecuciones; en las '
+    'filas marcadas con * se alcanzó el corte sin hallazgo. Los intentos, tasas, '
+    'estados, comandos y dispersión se conservan en resultados.json y resultados.md.', 'small')
 rows=[]
-for tag,mode in [('a','secuencial'),('a','base'),('a','alternativa'),('b','alternativa'),('c','alternativa')]:
-    rs=selection(tag,mode)
-    rows.append([f'{tag}) {mode}']+[f'{r["time"]:.6f}' for r in rs]+[f'{med(tag,mode):.6f}'])
-table(headers,rows,[102,61,61,61,61,61,61])
-add('Trazabilidad de las ejecuciones largas', 'h2')
-table(['Caso / programa','Tiempo (s)','Intentos','Salida'],[
-    (f'{tag}) {m}',f'{med(tag,m):.9f}',
-     f'{med(tag,m,"attempts"):,.0f}', '3: tiempo agotado')
-    for tag in ['b','c'] for m in ['secuencial','base']
-], [115,115,125,113])
-add(f'Cada fila larga resume {reps} ejecuciones con corte de {cutoff} s y rango '
-    '[0, 2^56). Se conservan las muestras individuales, tasas, intentos y estados '
-    'en resultados.json. Las medianas de intentos y de tiempo se calculan por '
-    'separado, por lo que su cociente no necesariamente es la mediana de tasas.')
-
-
-add('Cálculo reproducible de un ejemplo', 'h2')
-r=med('b','base','rate')
-code(f'Caso b), base: R = {r:.0f} claves/s\nT_proyectado = (18014398509481984 + 1) / {r:.0f}\nT_proyectado = {(keys["b"]+1)/r:.6g} s\nCondición: rango ampliado y rendimiento constante.\nLa ejecución registrada no encontró la clave.')
-add('Archivos completos de soporte', 'h2')
-add('bitacora.txt conserva comandos, salidas, intentos, tasas y códigos de '
-    'salida; resultados.md conserva la tabla original; datos/clave_a.aes, '
-    'clave_b.aes y clave_c.aes permiten comprobar cada entrada. Este informe '
-    'mantiene las cifras originales y explicita sus condiciones de interpretación.')
-
-page('Apéndice. Reproducción y entrega', 'Apéndice. Reproducción y entrega')
-add('Desde una extracción nueva en Ubuntu o WSL', 'h2')
-code('sudo apt install build-essential libssl-dev libopenmpi-dev openmpi-bin python3\nmake\nmake test\npython3 proyecto02/tests/ejecutar_pruebas.py 5 5\npython3 scripts/registrar_pruebas.py\npython3 informe/crear_informe.py\npython3 scripts/empaquetar.py')
-add('Para generar el informe se necesitan ReportLab, Pillow y fuentes Arial o DejaVu '
-    'Sans/Mono. Las pruebas y mediciones no requieren las librerías de PDF. '
-    'Los archivos de salida AES deben ser nuevos. Para las claves grandes, los '
-    'comandos de cifrado reciben el entero; la búsqueda solo recibe el archivo, '
-    'la frase y los límites del recorrido, nunca la clave objetivo.')
-add('Demostración de búsqueda con cuatro procesos', 'h2')
-code('python3 scripts/mpi_utils.py --run proyecto02/build/busqueda_base '+chr(92)+'\n  -l 72057594037927936 -t 5 evidencias/inciso2/datos/clave_b.aes\npython3 scripts/mpi_utils.py --run '+chr(92)+'\n  proyecto02/build/busqueda_alternativa '+chr(92)+'\n  evidencias/inciso2/datos/clave_b.aes')
-add('Estado final y límites del experimento', 'h2')
-table(['Área','Estado'],[
-    ('Programa','Cifrado autenticado, frase con confirmación, rangos sin desbordamiento y terminación MPI verificados.'),
-    ('Pruebas','Vector AES-128-ECB, 24 casos de archivos y 75 casos de búsqueda; make test exige Open MPI.'),
-    ('Mediciones','Cinco muestras por combinación, rango correcto, metadatos y control sin heurísticas. Proyecciones separadas.'),
-    ('Entrega','Fuentes, ejecutables Linux, informe, evidencias, manifiesto SHA-256 y registro final de pruebas.'),
-    ('Límites','Las búsquedas exhaustivas grandes siguen interrumpidas por costo. No se afirma haberlas completado ni haber roto AES-128.'),
-], [105,363])
-add('Las ampliaciones propuestas en recomendaciones corresponden a futuros estudios '
-    'de rendimiento. Los fallos funcionales identificados durante la revisión fueron '
-    'corregidos y se incorporaron regresiones.', 'small')
-
+for phase,tag in [('principal','a'),('principal','b'),('principal','c'),('control','control')]:
+    for mode in ['secuencial','base','alternativa']:
+        rs=[r for r in all_runs if r['phase']==phase and r['tag']==tag and r['mode']==mode]
+        label=f'{tag} / {mode}' + (' *' if tag in ['b','c'] and mode!='alternativa' else '')
+        rows.append([label]+[f'{r["time"]:.4f}' for r in rs]+[f'{median(r["time"] for r in rs):.4f}'])
+table(['Caso / programa','1','2','3','4','5','Mediana'], rows, [126,57,57,57,57,57,57])
+add('Reproducir en Ubuntu o WSL', 'h2')
+code('sudo apt install build-essential libssl-dev libopenmpi-dev openmpi-bin python3\nmake\nmake test\npython3 proyecto02/tests/ejecutar_pruebas.py 5 5')
+add('Para ejecutar MPI en el entorno WSL registrado, usar el helper del repositorio:', 'small')
+code('python3 scripts/mpi_utils.py --run proyecto02/build/busqueda_base '+chr(92)+'\n  -l 72057594037927936 -t 5 evidencias/inciso2/datos/clave_b.aes')
+add('La entrega incluye fuentes, ejecutables Linux, datos cifrados, evidencias e informe. '
+    'scripts/empaquetar.py comprueba su procedencia y crea el manifiesto SHA-256; '
+    'scripts/verificar_entrega.py --ejecutar recompila y prueba una extracción nueva. '
+    'Las instrucciones para regenerar el PDF están en README.md.', 'small')
 
 # Índice con números de página físicos; cada sección comienza en página nueva.
 index_rows = [(title, str(i+1)) for i,title in enumerate(pages) if i>=2]
@@ -768,25 +554,16 @@ idx.setStyle(TableStyle([('VALIGN',(0,0),(-1,-1),'TOP'),
 story[index_position]=idx
 
 def furniture(c, doc):
-    if doc.page==1:
-        return
-    c.setStrokeColor(colors.HexColor('#CCDAD2'))
-    c.setLineWidth(.5)
-    c.line(72,748,540,748)
-    c.setFillColor(GRAY)
-    c.setFont('Body',7.5)
-    c.drawString(72,759,'UVG  |  CC3069  |  Proyecto 02')
-    c.drawRightString(540,759,'AES-128 y Open MPI')
-    c.line(72,47,540,47)
-    c.drawString(72,34,'Estrada · Pivaral · Estrada  |  Ciclo 2 de 2026')
-    c.drawRightString(540,34,str(doc.page))
-    if doc.page==4:
+    c.setFillColor(INK)
+    c.setFont('Body',9)
+    c.drawCentredString(306,30,str(doc.page))
+    if doc.page==3:
         c.line(72,83,235,83)
         c.setFont('Body',7)
         c.drawString(72,72,'1. NIST (2023), FIPS 197-upd1, resumen. Cita en inglés; enlace completo en la referencia [1].')
 
 doc=SimpleDocTemplate(str(OUT), pagesize=(612,792), rightMargin=72,leftMargin=72,
-                      topMargin=60,bottomMargin=60,
+                      topMargin=60,bottomMargin=54,
                       title='Proyecto 02 - Búsqueda de claves AES-128 con Open MPI',
                       author='Daniel Estrada; Andre Pivaral; Sebastian Estrada',
                       subject='Informe experimental, estrategias, resultados y anexos')
@@ -794,7 +571,8 @@ doc.build(story,onFirstPage=furniture,onLaterPages=furniture)
 if doc.page != len(pages):
     raise RuntimeError(f'El contenido desborda: {doc.page} paginas reales, {len(pages)} planificadas.')
 inputs=['evidencias/inciso2/resultados.json','evidencias/capturas.json',
-        'evidencias/pruebas/ultima_prueba.txt','informe/crear_informe.py']
+        'evidencias/pruebas/ultima_prueba.txt','informe/crear_informe.py','evidencias/pruebas/resultado_final.json',
+        'informe/recursos/escudo_uvg.png']
 provenance={'inputs':{name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in inputs},
             'pdf_sha256':hashlib.sha256(OUT.read_bytes()).hexdigest(),'paginas':doc.page}
 (ROOT/'informe/procedencia.json').write_text(json.dumps(provenance,indent=2)+'\n',encoding='utf-8')
