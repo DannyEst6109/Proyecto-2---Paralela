@@ -2,9 +2,9 @@
   "inputs": {
     "evidencias/inciso2/resultados.json": "819ee082f7190063f211ee23479192d4ec4fa15f3282814782a8a04818163da5",
     "evidencias/capturas.json": "eaa1b0fb1a1a1b407e4881697d3d8df7ae1db8a3dd574e861cea7424386719b3",
-    "evidencias/pruebas/ultima_prueba.txt": "3afb9b37c59b0ee06bb624d666387c4dbaed1cc8b29e027b245910032d21fb04",
-    "informe/crear_informe.py": "9443a1f663cf21908c8a8015e610316e89b295c6baafe85b610a86941194f511"
+    "evidencias/pruebas/ultima_prueba.txt": "41ee8dc4fa33aa19717270c1be8ef6b7e07c610261addc1a68d925be1879b1fb",
+    "informe/crear_informe.py": "36af7ff56d7f3ecb8793be6a64677b6b814b22ef6e14bcd35a37fda63deb966d"
   },
-  "pdf_sha256": "f002aeffbfa46b5aeef9a2776e6777b20beb91c7093567dca2f94cca92b26bdd",
+  "pdf_sha256": "e054fb81e2ccc279c03b426a6bd2c39fd6924d0d28a6f0be89e9f26f9f86680e",
   "paginas": 28
 }

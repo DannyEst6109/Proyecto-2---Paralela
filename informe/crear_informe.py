@@ -8,7 +8,6 @@ from statistics import median
 import re
 import json
 import hashlib
-import shutil
 from xml.sax.saxutils import escape
 
 from reportlab.pdfbase import pdfmetrics
@@ -17,11 +16,11 @@ from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.platypus import (SimpleDocTemplate, Paragraph, Spacer, PageBreak,
-                               Table, TableStyle, Image, Preformatted, KeepTogether)
+                               Table, TableStyle, Image, Preformatted)
 from reportlab.graphics.shapes import Drawing, Rect, Line, Polygon, String
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / 'output/pdf/Informe_Proyecto_02.pdf'
+OUT = ROOT / 'informe/Informe_Proyecto_02.pdf'
 OUT.parent.mkdir(parents=True, exist_ok=True)
 FONT_DIRS = [Path('C:/Windows/Fonts'), Path('/usr/share/fonts/truetype/dejavu')]
 for folder in FONT_DIRS:
@@ -794,7 +793,6 @@ doc=SimpleDocTemplate(str(OUT), pagesize=(612,792), rightMargin=72,leftMargin=72
 doc.build(story,onFirstPage=furniture,onLaterPages=furniture)
 if doc.page != len(pages):
     raise RuntimeError(f'El contenido desborda: {doc.page} paginas reales, {len(pages)} planificadas.')
-shutil.copy2(OUT,ROOT/'informe/Informe_Proyecto_02.pdf')
 inputs=['evidencias/inciso2/resultados.json','evidencias/capturas.json',
         'evidencias/pruebas/ultima_prueba.txt','informe/crear_informe.py']
 provenance={'inputs':{name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in inputs},

@@ -157,7 +157,7 @@ python3 scripts/empaquetar.py
 python3 scripts/verificar_entrega.py
 ```
 
-El informe se guarda en `informe/` y `output/pdf/`. El empaquetador exige informe, pruebas
+El informe se guarda en `informe/Informe_Proyecto_02.pdf`. El empaquetador exige informe, pruebas
 aprobadas, capturas y mediciones completas, y verifica que las fuentes coincidan con sus
 hashes de medición. Incluye fuentes, ejecutables Linux con permiso de ejecución, scripts,
 datos, evidencias y `MANIFIESTO_SHA256.json`. La verificación comprueba CRC, rutas, hashes,
